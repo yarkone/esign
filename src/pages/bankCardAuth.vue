@@ -58,11 +58,11 @@
                 password: '96e79218965eb72c92a549dd5a330112',
                 LoginAgent: 'WEB'
             }
-            this.$api.doLogin(params).then(res => {
-                // console.log(res)
-            }).catch(error => {
-                console.log(error);
-            })
+            // this.$api.doLogin(params).then(res => {
+            //     // console.log(res)
+            // }).catch(error => {
+            //     console.log(error);
+            // })
         }
     }
 </script>
