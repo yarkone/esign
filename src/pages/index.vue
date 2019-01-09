@@ -5,7 +5,7 @@
             class="vux-1px-b"
             style="background-color: #fff;width:100%;position:fixed;left:0;top:0;z-index:100;"
         >{{title}}</x-header>
-        <div class="container" style="padding-top: 46px;">
+        <div class="container" style="margin-top: 46px;">
             <keep-alive>
                 <router-view v-if="$route.meta.keepAlive"></router-view>
             </keep-alive>
@@ -25,6 +25,7 @@ export default {
     },
     data() { 
         return {
+            config: 'bankCardAuth,mobileAuth,bodyAuth,realPhotoAuth',
             title: '电子签约'
         }
     },
@@ -39,11 +40,16 @@ export default {
         }
     },
     mounted () {
-
+        
+        // this.$router.push({
+        //     name: 'bankCardAuth'
+        // })
+        // this.title = '银行卡认证'
+        
         this.$router.push({
-            name: 'bankCardAuth'
+            name: 'bodyAuth'
         })
-        this.title = '银行卡认证'
+        this.title = '活体检测'
     }
 
 }

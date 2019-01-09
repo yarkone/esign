@@ -94,7 +94,9 @@
                 
             },
             next () {
-                
+                this.$router.push({
+                    name: 'bodyAuth'
+                })
             }
         }
     }

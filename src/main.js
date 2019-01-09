@@ -6,14 +6,23 @@ import router from './router'
 import Vuex from './store/index'
 import App from './App'
 import { LoadingPlugin, ToastPlugin, BusPlugin } from 'vux'
-import api from './http/index'
+import promise from 'es6-promise'
+import {post,fetch,patch,put} from './http/index'
 import 'lib-flexible/flexible'
+
+
+//定义全局变量
+Vue.prototype.$post=post;
+Vue.prototype.$fetch=fetch;
+Vue.prototype.$patch=patch;
+Vue.prototype.$put=put;
+
+promise.polyfill()
 
 Vue.use(LoadingPlugin)
 Vue.use(ToastPlugin)
 Vue.use(BusPlugin)
 Vue.use(Vuex)
-Vue.use(api)
 
 FastClick.attach(document.body)
 
