@@ -26,7 +26,8 @@ export default {
     data() { 
         return {
             title: '电子签约',
-            transitionName: 'slide-left'
+            transitionName: 'slide-left',
+            config: 'bankCardAuth,mobileAuth,bodyAuth,realPhotoAuth'
         }
     },
     beforeRouteUpdate (to, from, next) {
@@ -53,11 +54,16 @@ export default {
         }
     },
     mounted () {
-
+        
+        // this.$router.push({
+        //     name: 'bankCardAuth'
+        // })
+        // this.title = '银行卡认证'
+        
         this.$router.push({
-            name: 'bankCardAuth'
+            name: 'contract'
         })
-        this.title = '银行卡认证'
+        this.title = '客户签名'
     }
 
 }
@@ -78,6 +84,7 @@ export default {
         bottom: 0;
         left: 0;
         right: 0;
+        font-size: 36px;
         .child-view {
             position: absolute;
             width:100%;

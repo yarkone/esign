@@ -10,11 +10,20 @@ module.exports = {
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    proxyTable: {},
+    proxyTable: {
+      // '/0180100000': {
+      //   target: 'http://hrfax.imwork.net:10082/', // 接口的域名
+      //   // secure: false,  // 如果是https接口，需要配置这个参数
+      //   changeOrigin: true, // 如果接口跨域，需要进行这个参数配置
+      //   pathRewrite: {
+      //     '^/0180100000': '/0180100000'
+      //   }
+      // }
+    },
 
     // Various Dev Server settings
     host: '0.0.0.0', // can be overwritten by process.env.HOST
-    port: 8082, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
+    port: 8028, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: false,
     errorOverlay: true,
     notifyOnErrors: true,

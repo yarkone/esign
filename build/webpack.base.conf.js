@@ -26,6 +26,7 @@ let webpackConfig = {
     alias: {
       'vue$': 'vue/dist/vue.esm.js',
       '@': resolve('src'),
+      'pdfjs': resolve('static/js/pdfjs/pdf.js')
     }
   },
   module: {
