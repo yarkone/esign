@@ -26,6 +26,7 @@ Vue.use(Vuex)
 
 FastClick.attach(document.body)
 
+
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */

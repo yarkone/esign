@@ -2,6 +2,7 @@
 const path = require('path')
 const utils = require('./utils')
 const config = require('../config')
+const webpack = require('webpack')
 const vueLoaderConfig = require('./vue-loader.conf')
 const vuxLoader = require('vux-loader')
 
@@ -26,9 +27,19 @@ let webpackConfig = {
     alias: {
       'vue$': 'vue/dist/vue.esm.js',
       '@': resolve('src'),
-      'pdfjs': resolve('static/js/pdfjs/pdf.js')
+      '$': resolve('static/js/jquery-1.10.1.min.js'),
+      'jquery': resolve('static/js/jquery-1.10.1.min.js'),
+      'jSignature': resolve('static/js/jSignature.js'),
+      'hidpiCanvas': resolve('static/js/hidpi-canvas.min.js'),
+      // 'signaturePad': resolve('static/js/signature_pad.min.js'),
     }
   },
+  plugins: [
+    new webpack.ProvidePlugin({
+      $: "jquery",
+      jQuery: "jquery"
+    }),
+  ],
   module: {
     rules: [
       {
