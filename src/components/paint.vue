@@ -1,10 +1,10 @@
 <template>
-    <div class="mask" v-show="!post.isShow">
+    <div class="mask" v-show="post.isShow">
         <img alt="" class="signed-img" id="signImg">
         <div class="paint-panel">
             <div class="paint-title">手绘签名</div>
             <!-- <div class="paint-board" id="signature"></div> -->
-            <canvas class="paint-board" id="signature"></canvas>
+            <!-- <canvas class="paint-board" id="signature"></canvas> -->
             <div class="paint-submit">
                 <div class="button button-empty" @click="empty">清空</div>
                 <div class="button button-submit" @click="submit">提交</div>
@@ -17,8 +17,8 @@
 <script>
     import $ from 'jquery'
     // import jSignature from 'jSignature'
-    import SignaturePad from 'signature_pad'
-    // import hidpiCanvas from 'hidpiCanvas'
+    import signaturePad from 'signature_pad'
+    import hidpiCanvas from 'hidpiCanvas'
     
     export default {
         name: 'paint',
@@ -30,61 +30,72 @@
         data () {
 			return {
                 signFlag: false,
-                $signature: null,
+                signaturePad: null,
+                $signaturePad: null,
                 ratio: '',
                 imgSrc: ''
             }
 		},
 		mounted () {
 
+            this.initBoard();
             
-            this.$signature = $("#signature");
+            // this.$signaturePad = $("#signature");
             
-            this.$signature.css({
-                width: $(window).width() + 'px',
-                height: this.$signature.outerHeight() + 'px'
-            })
-            this.resizeCanvas ();
-            console.log(this.$signature.outerWidth(), this.$signature.outerHeight());
+            // console.log($(window).width())
+            // this.$signaturePad.css({
+            //     width: $(window).width() + 'px',
+            //     height: this.$signaturePad.outerHeight() + 'px'
+            // })
+            // this.resizeCanvas ();
+            // console.log(this.$signaturePad.outerWidth(), this.$signaturePad.outerHeight());
             
-            new SignaturePad(this.$signature[0], {
-                // minWidth: 2,
-                // maxWidth: 2,
-                penColor: "rgb(0, 0, 0)"
-            })
-            // this.initBoard();
-            // console.log(this.$signature.jSignature('getData', 'native').length);//判断js画布是否空白
+
+            // this.signaturePad.on('touchmove', function(e) {
+            //     console.log(e)
+            // })
+
+            
+            
+            // console.log(this.$signaturePad.jSignature('getData', 'native').length);//判断js画布是否空白
 		},
         methods: {
             initBoard () {
-                this.ratio = this.$signature.outerWidth() / this.$signature.outerHeight();
-                this.$signature.jSignature({'sizeRatio':1,'width':"100%",'height':"100%",'lineWidth': 4});
-                this.changeEvt();
+                let screenWidth = $(window).width(),
+                    canvasHeight = $('.paint-panel').outerHeight() - $('.paint-title').outerHeight() - $('.paint-submit').outerHeight();
+                this.ratio = screenWidth / canvasHeight;
+                this.$signaturePad = $('<canvas width="'+ screenWidth +'" height="'+ canvasHeight +'" class="paint-board" id="signature"></canvas>');
+                $('.paint-title').after(this.$signaturePad);
+
+                this.signaturePad = new signaturePad(this.$signaturePad[0], {
+                    penColor: "rgb(0, 0, 0)",
+                    minDistance: 1,
+                    onBegin: (e)=> {
+                        console.log(e);
+                    },
+                    onEnd: (e)=> {
+
+                    }
+                })
             },
             changeEvt () {
-                this.$signature.bind('change', (e) => {
+                this.$signaturePad.bind('change', (e) => {
                     console.log(e)
                 })
             },
             resetBoard () {
-                this.$signature.jSignature('reset');
+                this.signaturePad.clear();
             },
             empty () {
                 this.resetBoard();
             },
             submit () {
-                let data = this.$signature.jSignature('getData', "image");
-                if($.isArray(data) && data.length === 2){
-                    let imgStr = data.join(',');
                     let image = new Image();
-                    image.src = "data:" + imgStr;
+                    image.src = this.signaturePad.toDataURL();
                     image.onload = () => {
-                        let compressStream = this.compress(image, 60);
+                        let compressStream = this.compress(image, image.height);
                         $("#signImg").attr("src", "data:image/png;base64," + compressStream).show();
                     };
-                } else {
-                    alert("签名失败，请稍后再试！");
-                }
             },
             cancel () {
                 this.resetBoard();
@@ -120,7 +131,11 @@
                 return cvs.toDataURL("image/png",1);
             },
             resizeCanvas () {
-                !function(a){var b=function(){var a=document.createElement("canvas"),b=a.getContext("2d"),c=b.backingStorePixelRatio||b.webkitBackingStorePixelRatio||b.mozBackingStorePixelRatio||b.msBackingStorePixelRatio||b.oBackingStorePixelRatio||b.backingStorePixelRatio||1;return(window.devicePixelRatio||1)/c}(),c=function(a,b){for(var c in a)a.hasOwnProperty(c)&&b(a[c],c)},d={fillRect:"all",clearRect:"all",strokeRect:"all",moveTo:"all",lineTo:"all",arc:[0,1,2],arcTo:"all",bezierCurveTo:"all",isPointinPath:"all",isPointinStroke:"all",quadraticCurveTo:"all",rect:"all",translate:"all",createRadialGradient:"all",createLinearGradient:"all"};1!==b&&(c(d,function(c,d){a[d]=function(a){return function(){var d,e,f=Array.prototype.slice.call(arguments);if("all"===c)f=f.map(function(a){return a*b});else if(Array.isArray(c))for(d=0,e=c.length;e>d;d++)f[c[d]]*=b;return a.apply(this,f)}}(a[d])}),a.stroke=function(a){return function(){this.lineWidth*=b,a.apply(this,arguments),this.lineWidth/=b}}(a.stroke),a.fillText=function(a){return function(){var c=Array.prototype.slice.call(arguments);c[1]*=b,c[2]*=b,this.font=this.font.replace(/(\d+)(px|em|rem|pt)/g,function(a,c,d){return c*b+d}),a.apply(this,c),this.font=this.font.replace(/(\d+)(px|em|rem|pt)/g,function(a,c,d){return c/b+d})}}(a.fillText),a.strokeText=function(a){return function(){var c=Array.prototype.slice.call(arguments);c[1]*=b,c[2]*=b,this.font=this.font.replace(/(\d+)(px|em|rem|pt)/g,function(a,c,d){return c*b+d}),a.apply(this,c),this.font=this.font.replace(/(\d+)(px|em|rem|pt)/g,function(a,c,d){return c/b+d})}}(a.strokeText))}(CanvasRenderingContext2D.prototype),function(a){a.getContext=function(a){return function(b){var c,d,e=a.call(this,b);return"2d"===b&&(c=e.backingStorePixelRatio||e.webkitBackingStorePixelRatio||e.mozBackingStorePixelRatio||e.msBackingStorePixelRatio||e.oBackingStorePixelRatio||e.backingStorePixelRatio||1,d=(window.devicePixelRatio||1)/c,d>1&&(this.style.height=this.height+"px",this.style.width=this.width+"px",this.width*=d,this.height*=d)),e}}(a.getContext)}(HTMLCanvasElement.prototype);
+                // var ratio =  Math.max(window.devicePixelRatio || 1, 1);
+                // this.$signaturePad[0].width = this.$signaturePad[0].offsetWidth * ratio;
+                // this.$signaturePad[0].height = this.$signaturePad[0].offsetHeight * ratio;
+                // this.$signaturePad[0].getContext("2d").scale(ratio, ratio);
+                // this.signaturePad.clear(); // otherwise isEmpty() might return incorrect value
             }
         }
     }
@@ -184,7 +199,7 @@
                 left: 0;
                 right: 0;
                 bottom: 100px;
-                height: 470px;
+                // height: 470px;
                 background: #fff;
             }
         }

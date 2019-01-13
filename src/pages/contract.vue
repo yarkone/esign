@@ -31,7 +31,7 @@
         data() { 
             return {
                 post: {
-                    isShow: true
+                    isShow: false
                 },
                 pdfurls: 'http://hrfax.imwork.net:10082/0180100000/0180400000/2019/01/09/vx0180400000532667942488248320/00780000000000190109212014000QH0/temp.pdf',
                 scale: 1.2
