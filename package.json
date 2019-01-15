@@ -15,10 +15,11 @@
   "dependencies": {
     "es6-promise": "^4.2.5",
     "fastclick": "^1.0.6",
-    "hidpi-canvas": "^1.0.10",
+    "html2canvas": "^1.0.0-alpha.12",
     "lib-flexible": "^0.3.2",
     "px2rem-loader": "^0.1.9",
     "signature_pad": "^3.0.0-beta.3",
+    "trim-canvas": "^0.1.2",
     "vue": "^2.5.2",
     "vue-axios": "^2.0.2",
     "vue-pdf": "^4.0.5",

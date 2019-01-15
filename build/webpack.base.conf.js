@@ -29,15 +29,16 @@ let webpackConfig = {
       '@': resolve('src'),
       '$': resolve('static/js/jquery-1.10.1.min.js'),
       'jquery': resolve('static/js/jquery-1.10.1.min.js'),
-      'jSignature': resolve('static/js/jSignature.js'),
       'hidpiCanvas': resolve('static/js/hidpi-canvas.min.js'),
-      // 'signaturePad': resolve('static/js/signature_pad.min.js'),
+      'canvasScale': resolve('static/js/scale.min.js'),
+      'canvas2image': resolve('static/js/canvas2image.js')
     }
   },
   plugins: [
     new webpack.ProvidePlugin({
       $: "jquery",
-      jQuery: "jquery"
+      jQuery: "jquery",
+      canvas2image: "canvas2image"
     }),
   ],
   module: {
