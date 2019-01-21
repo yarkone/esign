@@ -40,24 +40,8 @@
 		},
 		mounted () {
 
-            this.initBoard();
-            
-            // this.$signaturePad = $("#signature");
-            
-            // console.log($(window).width())
-            // this.$signaturePad.css({
-            //     width: $(window).width() + 'px',
-            //     height: this.$signaturePad.outerHeight() + 'px'
-            // })
-            // this.resizeCanvas ();
-            // console.log(this.$signaturePad.outerWidth(), this.$signaturePad.outerHeight());
-            
-
-            // this.signaturePad.on('touchmove', function(e) {
-            //     console.log(e)
-            // })
-
-            
+            this.removeBlanks();
+            this.initBoard();            
             
             // console.log(this.$signaturePad.jSignature('getData', 'native').length);//判断js画布是否空白
 		},
@@ -65,19 +49,12 @@
             initBoard () {
                 let screenWidth = $(window).width(),
                     canvasHeight = $('.paint-panel').outerHeight() - $('.paint-title').outerHeight() - $('.paint-submit').outerHeight();
-                this.ratio = screenWidth / canvasHeight;
                 this.$signaturePad = $('<canvas width="'+ screenWidth +'" height="'+ canvasHeight +'" class="paint-board" id="signature"></canvas>');
                 $('.paint-title').after(this.$signaturePad);
 
                 this.signaturePad = new signaturePad(this.$signaturePad[0], {
                     penColor: "rgb(0, 0, 0)",
                     // velocityFilterWeight: 0.1,//线条粗细，默认0.7
-                    onBegin: (e)=> {
-                        console.log(e);
-                    },
-                    onEnd: (e)=> {
-                        console.log(e);
-                    }
                 })
             },
             changeEvt () {
@@ -92,61 +69,14 @@
                 this.resetBoard();
             },
             submit () {
-                // console.log(this.$signaturePad)
-                // $("#signImg").after(trimCanvas(this.$signaturePad.clone(true)[0]));
-
-                // let canvas = document.createElement('canvas');
-                // canvas.width = this.$signaturePad[0].width;
-                // canvas.height = this.$signaturePad[0].height;
-                // let ctx = canvas.getContext('2d');
-                // ctx.drawImage(this.$signaturePad[0], 0, 0, this.$signaturePad[0].width, this.$signaturePad[0].height);
-                // $("#signImg").after(trimCanvas(canvas));
-
-                function cloneCanvas(oldCanvas) {
-
-                    //create a new canvas
-                    var newCanvas = document.createElement('canvas');
-                    var context = newCanvas.getContext('2d');
-
-                    //set dimensions
-                    newCanvas.width = oldCanvas.width;
-                    newCanvas.height = oldCanvas.height;
-
-                    //apply the old canvas to the new one
-                    context.drawImage(oldCanvas, 0, 0);
-
-                    //return the new canvas
-                    return newCanvas;
-                }
-                
-                // trimCanvas($clone[0]);
-                let $clone = $(cloneCanvas(this.$signaturePad[0]));
-                $("#signImg").after($clone);
-                // console.log($clone[0].toDataURL());
-                new signaturePad($clone[0], {
-                    penColor: "rgb(0, 0, 0)",
-                    // velocityFilterWeight: 0.1,//线条粗细，默认0.7
-                })
-                // this.canvasRemoveBlanks($clone[0])
-                this.canvasRemoveBlanks(this.$signaturePad[0])
-                
+                let $clone = this.trimBlankCanvas(this.signaturePad.getTrimPos());
+                this.ratio = $clone.width / $clone.height;
                 let image = new Image();
-                image.src = this.signaturePad.toDataURL();
+                image.src = $clone.toDataURL();
                 image.onload = () => {
-                    let compressStream = this.compress(image, image.height);
+                    let compressStream = this.compress(image, 60);
                     $("#signImg").attr("src", "data:image/png;base64," + compressStream).show();
                 };
-
-                // let image = new Image();
-                // let src = image.src = canvasScale({width: this.ratio * 60, height: 60}, this.$signaturePad[0], 'png-src');
-                // image.onload = () => {
-                //     $("#signImg").attr("src", src).show();
-                // };
-
-                // html2canvas(document.body).then(function(canvas) {
-                //     document.body.appendChild(canvas);
-                // });
-                // console.log(Canvas2Image.saveAsPNG(this.$signaturePad[0], this.ratio * 60, 60));
             },
             cancel () {
                 this.resetBoard();
@@ -154,11 +84,11 @@
             },
             compress (image, height) {
                 let cvs = document.createElement('canvas');
+                let ctx = cvs.getContext('2d'); 
                 //指定图片压缩大小可以自由设置 但务必保持签名布的宽高比 
                 
                 cvs.height = height;
                 cvs.width = this.ratio * height;
-                let ctx = cvs.getContext('2d');    
                 ctx.drawImage(image, 0, 0, cvs.width, cvs.height); 
                 let newImageData = cvs.toDataURL("image/png", 1); 
                 let sendData = newImageData.replace("data:image/png;base64,",'');  
@@ -188,56 +118,81 @@
                 // this.$signaturePad[0].getContext("2d").scale(ratio, ratio);
                 // this.signaturePad.clear(); // otherwise isEmpty() might return incorrect value
             },
-            canvasRemoveBlanks (canvas) {
-                let _ctx = canvas.getContext('2d');
-                let imgWidth = canvas.width;
-                let imgHeight = canvas.height;
-                let imageData = _ctx.getImageData(0, 0, imgWidth, imgHeight),
-                data = imageData.data,
-                getAlpha = function(x, y) {
-                    return data[(imgWidth*y + x) * 4 + 3]
-                },
-                scanY = function (fromTop) {
-                    let offset = fromTop ? 1 : -1;
+            trimBlankCanvas (opts) {
+                //create a new canvas
+                let newCanvas = document.createElement('canvas');
+                let context = newCanvas.getContext('2d');
 
-                    // loop through each row
-                    for(let y = fromTop ? 0 : imgHeight - 1; fromTop ? (y < imgHeight) : (y > -1); y += offset) {
+                //set dimensions
+                newCanvas.width = opts.cropRight - opts.cropLeft;
+                newCanvas.height = opts.cropBottom - opts.cropTop;
+                newCanvas.style = '';
 
-                        // loop through each column
-                        for(let x = 0; x < imgWidth; x++) {
-                            if (getAlpha(x, y)) {
-                                return y;                        
-                            }      
-                        }
-                    }
-                    return null; // all image is white
-                },
-                scanX = function (fromLeft) {
-                    let offset = fromLeft? 1 : -1;
+                //apply the old canvas to the new one
+                // context.drawImage(oldCanvas, 0, 0);
+                context.putImageData(opts.relevantData, 0, 0);
 
-                    // loop through each column
-                    for(let x = fromLeft ? 0 : imgWidth - 1; fromLeft ? (x < imgWidth) : (x > -1); x += offset) {
+                //return the new canvas
+                return newCanvas;
+            },
+            removeBlanks () {
+                signaturePad.prototype.getTrimPos = function () {
+                    var imgWidth = this._ctx.canvas.width;
+                    var imgHeight = this._ctx.canvas.height;
+                    var imageData = this._ctx.getImageData(0, 0, imgWidth, imgHeight),
+                    data = imageData.data,
+                    getAlpha = function(x, y) {
+                        return data[(imgWidth*y + x) * 4 + 3]
+                    },
+                    scanY = function (fromTop) {
+                        var offset = fromTop ? 1 : -1;
 
                         // loop through each row
-                        for(let y = 0; y < imgHeight; y++) {
-                            if (getAlpha(x, y)) {
-                                return x;                        
-                            }      
+                        for(var y = fromTop ? 0 : imgHeight - 1; fromTop ? (y < imgHeight) : (y > -1); y += offset) {
+
+                            // loop through each column
+                            for(var x = 0; x < imgWidth; x++) {
+                                if (getAlpha(x, y)) {
+                                    return y;                        
+                                }      
+                            }
                         }
+                        return null; // all image is white
+                    },
+                    scanX = function (fromLeft) {
+                        var offset = fromLeft? 1 : -1;
+
+                        // loop through each column
+                        for(var x = fromLeft ? 0 : imgWidth - 1; fromLeft ? (x < imgWidth) : (x > -1); x += offset) {
+
+                            // loop through each row
+                            for(var y = 0; y < imgHeight; y++) {
+                                if (getAlpha(x, y)) {
+                                    return x;                        
+                                }      
+                            }
+                        }
+                        return null; // all image is white
+                    };
+
+                    var cropTop = scanY(true),
+                    cropBottom = scanY(false),
+                    cropLeft = scanX(true),
+                    cropRight = scanX(false);
+                    console.log(cropTop, cropBottom, cropLeft, cropRight);
+                    var relevantData = this._ctx.getImageData(cropLeft, cropTop, cropRight-cropLeft, cropBottom-cropTop);
+                    // this._ctx.canvas.width = cropRight-cropLeft;
+                    // this._ctx.canvas.height = cropBottom-cropTop;
+                    // this._ctx.clearRect(0, 0, cropRight-cropLeft, cropBottom-cropTop);
+                    // this._ctx.putImageData(relevantData, 0, 0);
+                    return {
+                        relevantData: relevantData,
+                        cropTop: cropTop,
+                        cropBottom: cropBottom,
+                        cropLeft: cropLeft,
+                        cropRight: cropRight
                     }
-                    return null; // all image is white
                 };
-
-                let cropTop = scanY(true),
-                cropBottom = scanY(false),
-                cropLeft = scanX(true),
-                cropRight = scanX(false);
-
-                let relevantData = _ctx.getImageData(cropLeft, cropTop, cropRight-cropLeft, cropBottom-cropTop);
-                canvas.width = cropRight-cropLeft;
-                canvas.height = cropBottom-cropTop;
-                _ctx.clearRect(0, 0, cropRight-cropLeft, cropBottom-cropTop);
-                _ctx.putImageData(relevantData, 0, 0);
             }
         }
     }

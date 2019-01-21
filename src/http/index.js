@@ -114,10 +114,11 @@ axios.interceptors.response.use(
  * @returns {Promise}
  */
 
-export function fetch(url,params={}){
+export function fetch(url,params = {}, config = {}){
   return new Promise((resolve,reject) => {
     axios.get(url,{
-      params:params
+      params: params,
+      config: config
     })
     .then(response => {
       resolve(response);
