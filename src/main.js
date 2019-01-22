@@ -5,7 +5,7 @@ import FastClick from 'fastclick'
 import router from './router'
 import Vuex from './store/index'
 import App from './App'
-import { LoadingPlugin, ToastPlugin, AlertPlugin, BusPlugin } from 'vux'
+import { LoadingPlugin, ToastPlugin, AlertPlugin, ConfirmPlugin, BusPlugin } from 'vux'
 import promise from 'es6-promise'
 import {post,fetch,patch,put} from './http/index'
 import 'lib-flexible/flexible'
@@ -22,6 +22,7 @@ promise.polyfill()
 Vue.use(LoadingPlugin)
 Vue.use(ToastPlugin)
 Vue.use(AlertPlugin)
+Vue.use(ConfirmPlugin)
 Vue.use(BusPlugin)
 Vue.use(Vuex)
 

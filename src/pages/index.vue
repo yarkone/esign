@@ -16,6 +16,7 @@
 
 <script>
 import { XButton, XHeader, querystring } from 'vux'
+import { tool } from '../mixins/tool'
 
 export default {
     name: 'container',
@@ -65,7 +66,16 @@ export default {
             
         },
         goBack() {
-            this.$router.goBack();
+            let that = this;
+            this.$vux.confirm.show({
+                title: '提示',
+                content: '您当前正在进行电子签约，请确定，是否退出？',
+                onCancel () {},
+                onConfirm () {
+                    that.$router.goBack();
+                }
+            })
+            
         },
         setSession (data) {
             this.totalInfo = Object.assign(this.totalInfo, data);
@@ -83,7 +93,8 @@ export default {
                 return;
             }
             this.$router.push({
-                name: this.configMap[type].path
+                name: this.configMap[type].path,
+                // query: this.totalInfo.urlParams
             })
             this.title = this.configMap[type].title
         },
@@ -194,10 +205,16 @@ export default {
         // })
         // this.title = '银行卡认证'
 
-        let urlParams = querystring.parse(window.location.search);
-        this.totalInfo = {
-            urlParams: urlParams
-        };
+        let urlParams = null;
+        if(tool.getTotalInfo('totalInfo')) {
+            urlParams = tool.getTotalInfo('totalInfo').urlParams;
+            this.totalInfo = tool.getTotalInfo('totalInfo');
+        } else {
+            urlParams = querystring.parse(window.location.search);
+            this.totalInfo = {
+                urlParams: urlParams
+            };
+        }
 
         let params = {
             serviceId: 'S055',

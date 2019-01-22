@@ -71,10 +71,10 @@
                 name: this.totalInfo.userInfo.name,
                 idCard: this.totalInfo.userInfo.idCard,
                 authTaskId: this.totalInfo.authTaskId,
-                certType: this.totalInfo.certType,
+                certType: 0,
                 reserveMobile: this.totalInfo.mobile,
-                cardNo: this.totalInfo.bankCardNo,
-                signTaskId: this.totalInfo.signTaskId
+                cardNo: this.totalInfo.userInfo.bankCardNo
+                // signTaskId: this.totalInfo.userInfo.id
             }
             this.$post('bankCard/bankCardSign', params).then(res => {
                 console.log(res);
