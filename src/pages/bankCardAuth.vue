@@ -6,10 +6,10 @@
                 <span class="result-text">验证通过</span>
             </div>
             <div class="list-wrap">
-                <div class="list-item vux-1px-b"><div class="list-item-left">姓名：</div><div class="list-item-right">金飞</div></div>
-                <div class="list-item vux-1px-b"><div class="list-item-left">身份证号：</div><div class="list-item-right">412802199302033154</div></div>
-                <div class="list-item vux-1px-b"><div class="list-item-left">银行卡号：</div><div class="list-item-right">154615451545125152</div></div>
-                <div class="list-item vux-1px-b"><div class="list-item-left">银行卡预留手机号：</div><div class="list-item-right">13002601634</div></div>
+                <div class="list-item vux-1px-b"><div class="list-item-left">姓名：</div><div class="list-item-right">{{totalInfo && totalInfo.userInfo && totalInfo.userInfo.name || ''}}</div></div>
+                <div class="list-item vux-1px-b"><div class="list-item-left">身份证号：</div><div class="list-item-right">{{totalInfo && totalInfo.userInfo && totalInfo.userInfo.idCard || ''}}</div></div>
+                <div class="list-item vux-1px-b"><div class="list-item-left">银行卡号：</div><div class="list-item-right">{{totalInfo && totalInfo.userInfo && totalInfo.userInfo.bankCardNo || ''}}</div></div>
+                <div class="list-item vux-1px-b"><div class="list-item-left">银行卡预留手机号：</div><div class="list-item-right">{{totalInfo && totalInfo.userInfo && totalInfo.userInfo.mobile || ''}}</div></div>
             </div>
             <div class="rule-area">
                 
@@ -34,6 +34,7 @@
 
 <script>
     import { XButton } from 'vux'
+    import { tool } from '../mixins/tool'
 
     export default {
         name: 'bankCardAuth',
@@ -42,7 +43,7 @@
         },
         data() { 
             return {
-
+                totalInfo: null
             }
         },
         methods: {
@@ -52,17 +53,34 @@
                 })
             }
         },
+        beforeCreate() {
+            
+        },
         mounted() {
-            var params = {
-                account: '100000004',
-                password: '96e79218965eb72c92a549dd5a330112',
-                LoginAgent: 'WEB'
+            this.totalInfo = tool.getTotalInfo('totalInfo');
+
+            let params = {
+                serviceId: 'S009',
+                orderNo: this.totalInfo.userInfo.bankOrderNo,
+                uniformAuthNum: this.totalInfo.userInfo.account,
+                userId: this.totalInfo.urlParams.userId,
+                userType: this.totalInfo.urlParams.userType,
+                dotNum: this.totalInfo.userInfo.dotNum,
+                areaCode: this.totalInfo.userInfo.areaCode,
+
+                name: this.totalInfo.userInfo.name,
+                idCard: this.totalInfo.userInfo.idCard,
+                authTaskId: this.totalInfo.authTaskId,
+                certType: this.totalInfo.certType,
+                reserveMobile: this.totalInfo.mobile,
+                cardNo: this.totalInfo.bankCardNo,
+                signTaskId: this.totalInfo.signTaskId
             }
-            // this.$api.doLogin(params).then(res => {
-            //     // console.log(res)
-            // }).catch(error => {
-            //     console.log(error);
-            // })
+            this.$post('bankCard/bankCardSign', params).then(res => {
+                console.log(res);
+            }).catch(error => {
+                console.log(error);
+            })
         }
     }
 </script>

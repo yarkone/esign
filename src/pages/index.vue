@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { XButton, XHeader } from 'vux'
+import { XButton, XHeader, querystring } from 'vux'
 
 export default {
     name: 'container',
@@ -25,8 +25,28 @@ export default {
     },
     data() { 
         return {
+            totalInfo: null,
             title: '电子签约',
             transitionName: 'slide-left',
+            configMap: {
+                bankCardAuth: {
+                    path: 'bankCardAuth',
+                    title: '银行卡认证'
+                },
+                mobileAuth: {
+                    path: 'mobileAuth',
+                    title: '短信认证'
+                },
+                bodyAuth: {
+                    path: 'bodyAuth',
+                    title: '活体检测'
+                },
+                realPhotoAuth: {
+                    path: 'realPhotoAuth',
+                    title: '人脸对比'
+                }
+            },
+            urlParams: null,
             config: 'bankCardAuth,mobileAuth,bodyAuth,realPhotoAuth'
         }
     },
@@ -44,8 +64,122 @@ export default {
         haha() {
             
         },
-        goBack() {console.log(1);
-            this.$router.goBack()
+        goBack() {
+            this.$router.goBack();
+        },
+        setSession (data) {
+            this.totalInfo = Object.assign(this.totalInfo, data);
+
+            // this.contractInfo = data && data.contractInfo;
+            // this.downServer = JSON.parse(data && data.downServer);
+            // this.userInfo = JSON.parse(data && data.userInfo);
+
+            // sessionStorage.setItem('contractInfo', JSON.stringify(data.contractInfo));
+            // sessionStorage.setItem('downServer', data.downServer);
+            // sessionStorage.setItem('userInfo', data.userInfo);
+        },
+        goAuthTypes(type) {
+            if(!type || !this.configMap[type]) {
+                return;
+            }
+            this.$router.push({
+                name: this.configMap[type].path
+            })
+            this.title = this.configMap[type].title
+        },
+        signList(cb) {
+            let params = {
+                serviceId: 'S050',
+                orderNo: this.totalInfo.userInfo.bankOrderNo,
+                bankCode: this.totalInfo.userInfo.bankCode,
+
+                sceneCode: this.totalInfo.contractInfo.sceneCode,
+                processDefKey: this.totalInfo.contractInfo.processDefKey,
+                taskCode: this.totalInfo.contractInfo.taskCode,
+
+                dotNum: this.totalInfo.userInfo.dotCode,
+                areaCode: this.totalInfo.userInfo.areaCode,
+                uniformAuthNum: this.totalInfo.userInfo.account,
+                location: '杭州湾信息港',
+                signMethod: 1,
+                userId: this.totalInfo.urlParams.userId,
+                userType: this.totalInfo.urlParams.userType,
+                paramJson: this.totalInfo.contractInfo.contracts
+                
+            }
+            this.$post('service', params).then(res => {
+                console.log(res);
+                if(res.data && res.data.contractTasks && res.data.contractTasks.length && res.data.contractTasks[0].taskList.length) {
+                    this.totalInfo.userInfo = Object.assign(this.totalInfo.userInfo, res.data.contractTasks[0].taskList[0]);
+                    if(cb && typeof cb === 'function') cb();
+                } else {
+                    this.$vux.alert.show({
+                        title: '提示',
+                        content: '暂无需要签署的合同！'
+                    })
+                }
+            }).catch(error => {
+                console.log(error);
+            })
+        },
+        checkAuthTypes() {
+            let typesArr = this.totalInfo.contractInfo.authTypes.split(',');
+            if(typesArr.length) { 
+                // 获取身份证正反面
+                this.$fetch('http://hrfax.imwork.net:18887/api/creditMaterials/getSfzPic', {orderNo: this.totalInfo.userInfo.bankOrderNo, userId: this.totalInfo.urlParams.userId, assurerNo: this.totalInfo.urlParams.assurerNo}).then(res => {
+                    if(res.data && res.data.creditMaterials && res.data.creditMaterials.length) {
+                        let arr_frontIdCard = res.data.creditMaterials.filter((it) => {
+                            return it.materialsCode === 'sfzzm';
+                        });
+                        let arr_backIdCard = res.data.creditMaterials.filter((it) => {
+                            return it.materialsCode === 'sfzfm';
+                        });
+                        if(arr_frontIdCard.length) this.totalInfo.userInfo.frontIdCard = arr_frontIdCard[0].materialsPic;
+                        if(arr_backIdCard.length) this.totalInfo.userInfo.backIdCard = arr_backIdCard[0].materialsPic;
+
+                        let params = {
+                            serviceId: 'S052',
+                            orderNo: this.totalInfo.userInfo.bankOrderNo,
+                            uniformAuthNum: this.totalInfo.userInfo.account,
+                            userId: this.totalInfo.urlParams.userId,
+                            userType: this.totalInfo.urlParams.userType,
+                            dotNum: this.totalInfo.userInfo.dotNum,
+                            areaCode: this.totalInfo.userInfo.areaCode,
+
+                            processDefKey: this.totalInfo.contractInfo.processDefKey,
+                            taskCode: this.totalInfo.contractInfo.taskCode,
+                            authCount: typesArr.length,
+                            frontIdCard: this.totalInfo.userInfo.frontIdCard,
+                            backIdCard: this.totalInfo.userInfo.backIdCard,
+                            name: this.totalInfo.userInfo.name,
+                            authTypes: this.totalInfo.userInfo.authTypes
+                        }
+                        // 是否认证完接口
+                        this.$post('auth/authRecordsNew', params).then(res => {
+                            if(res.data && res.data.isComplete == 1) {
+                                this.totalInfo.authTaskId = res.data.id;
+                                sessionStorage.setItem('totalInfo', JSON.stringify(this.totalInfo));
+                                this.goAuthTypes(typesArr[0]);
+                            } else {
+                                this.$router.push({
+                                    name: 'contract'
+                                })
+                                this.title = '客户签名'
+                            }
+                            console.log(res);
+                        }).catch(error => {
+                            console.log(error);
+                        })
+                    } else {
+                        this.$vux.alert.show({
+                            title: '提示',
+                            content: '无法获取身份证正反面！'
+                        })
+                    }                    
+                }).catch(error => {
+                    console.log(error);
+                })
+            }
         }
     },
     watch: {
@@ -59,11 +193,31 @@ export default {
         //     name: 'bankCardAuth'
         // })
         // this.title = '银行卡认证'
-        
-        this.$router.push({
-            name: 'contract'
+
+        let urlParams = querystring.parse(window.location.search);
+        this.totalInfo = {
+            urlParams: urlParams
+        };
+
+        let params = {
+            serviceId: 'S055',
+            orderNo : urlParams.orderNo,
+            assurerNo: urlParams.assurerNo
+        };
+
+        this.$post('service', params).then(res => {
+            this.setSession(res.data);
+            this.signList(() => {
+                this.checkAuthTypes();
+            });
+        }).catch(error => {
+            console.log(error);
         })
-        this.title = '客户签名'
+        
+        // this.$router.push({
+        //     name: 'contract'
+        // })
+        // this.title = '客户签名'
     }
 
 }

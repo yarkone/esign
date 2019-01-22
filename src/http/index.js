@@ -21,8 +21,8 @@ const handleResponseLoading = () => {
     if (!requestingCount)  stopLoading();
 }
 
-axios.defaults.timeout = 5000;
-axios.defaults.baseURL ='http://112.74.99.75:8092';
+// axios.defaults.timeout = 5000;
+axios.defaults.baseURL ='http://hrfax.imwork.net:16161/';
 
 
 //http request 拦截器
@@ -91,11 +91,15 @@ axios.interceptors.response.use(
       default:
         //处理错误
         console.log('非法code:' + data.code)
-        Vue.$vux.toast.show({
-            type: 'text',
-            text: data.msg || '系统异常',
-            width: '10em',
-            position: 'bottom'
+        // Vue.$vux.toast.show({
+        //     type: 'text',
+        //     text: data.msg || '系统异常',
+        //     width: '10em',
+        //     position: 'bottom'
+        // })
+        Vue.$vux.alert.show({
+            title: '提示',
+            content: data.msg || '系统异常'
         })
     }
     return data;

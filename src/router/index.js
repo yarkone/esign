@@ -15,7 +15,19 @@ Router.prototype.goBack = function () {
 Vue.use(Router)
 
 export default new Router({
+	mode: 'history',
+    scrollBehavior (to, from, savedPosition) {
+        if (savedPosition) {
+            return savedPosition
+        } else {
+            return { x: 0, y: 0 }
+        }
+    },
   	routes: [{
+		path: '',
+		name: '',
+		component: index
+	  }, {
 		path: '/',
 		name: 'index',
 		component: index,
@@ -34,7 +46,7 @@ export default new Router({
 				title: '短信认证'
 			}
 		}, {
-			path: '/index/bodyAuth',
+			path: '/bodyAuth',
 			name: 'bodyAuth',
 			component: bodyAuth,
 			meta: {
@@ -44,7 +56,7 @@ export default new Router({
 				isFirstEnter: false //是否第一次进入页面
 			}
 		}, {
-			path: '/index/realPhotoAuth',
+			path: '/realPhotoAuth',
 			name: 'realPhotoAuth',
 			component: realPhotoAuth,
 			meta: {
@@ -54,7 +66,7 @@ export default new Router({
 				isFirstEnter: false //是否第一次进入页面
 			}
 		}, {
-			path: '/index/contract',
+			path: '/contract',
 			name: 'contract',
 			component: contract,
 			meta: {
