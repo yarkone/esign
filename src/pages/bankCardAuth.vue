@@ -71,7 +71,7 @@
                 name: this.totalInfo.userInfo.name,
                 idCard: this.totalInfo.userInfo.idCard,
                 authTaskId: this.totalInfo.authTaskId,
-                certType: 0,
+                // certType: 0,
                 reserveMobile: this.totalInfo.mobile,
                 cardNo: this.totalInfo.userInfo.bankCardNo
                 // signTaskId: this.totalInfo.userInfo.id

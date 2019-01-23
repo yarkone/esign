@@ -163,7 +163,7 @@ export default {
                             frontIdCard: this.totalInfo.userInfo.frontIdCard,
                             backIdCard: this.totalInfo.userInfo.backIdCard,
                             name: this.totalInfo.userInfo.name,
-                            authTypes: this.totalInfo.userInfo.authTypes
+                            authTypes: this.totalInfo.contractInfo.authTypes
                         }
                         // 是否认证完接口
                         this.$post('auth/authRecordsNew', params).then(res => {
