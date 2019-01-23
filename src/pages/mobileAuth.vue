@@ -8,7 +8,7 @@
                 13202154518
             </div>
             <div class="button-wrap">
-                <x-button type="warn" @click.native="sendCode">下一步</x-button>
+                <x-button type="warn" @click.native="sendCode">发送验证码</x-button>
             </div>
         </div>
 
@@ -41,6 +41,7 @@
 <script>
     import { XButton, XInput, Group, Toast } from 'vux'
     import { setTimeout, setInterval, clearInterval } from 'timers';
+    import { tool } from '../mixins/tool'
     
     export default {
         name: 'mobileAuth',
@@ -52,16 +53,36 @@
         },
         data() { 
             return {
+                totalInfo: null,
                 value: '',
                 isDisabled: false,
                 buttonText: '重发（<span class="color-main">60s</span>）',
                 showCodePanel: false
             }
         },
+        mounted() {
+            this.totalInfo = tool.getTotalInfo('totalInfo');
+        },
         methods: {
             showLoading (cb) {
-                this.$vux.loading.show()
-                setTimeout(() => {
+                this.$vux.loading.show();
+
+                let params = {
+                    serviceId: 'S008',
+                    orderNo: this.totalInfo.userInfo.bankOrderNo,
+                    uniformAuthNum: this.totalInfo.userInfo.account,
+                    userId: this.totalInfo.urlParams.userId,
+                    userType: this.totalInfo.urlParams.userType,
+                    dotNum: this.totalInfo.userInfo.dotCode,
+                    areaCode: this.totalInfo.userInfo.areaCode,
+                    authTaskId: this.totalInfo.authTaskId,
+                    mobileNo: this.totalInfo.userInfo.mobile,
+                    link: '',
+                    sceneCode: this.totalInfo.contractInfo.areaCode
+                }
+
+                this.$post('sms/sendMsg', params).then(res => {
+                    console.log(res);
                     this.$vux.toast.show({
                         type: 'text',
                         text: '验证码已发送',
@@ -70,7 +91,9 @@
                     })
                     this.$vux.loading.hide()
                     if (cb && typeof cb == 'function') cb();
-                }, 1500)
+                }).catch(error => {
+                    console.log(error);
+                })
             },
             sendCode () {
                 let count = 60;//验证码倒计时60s

@@ -2,17 +2,26 @@
  * @Author: yarkone 
  * @Date: 2018-11-05 10:22:51 
  * @Last Modified by: yarkone
- * @Last Modified time: 2019-01-22 17:56:44
+ * @Last Modified time: 2019-01-23 20:27:31
  */
 
 export const tool = {
 	/**
-	 * 添加日期格式化方法
-	 * @params {number} time 时间戳
-	 * @params {boolean} isTime 是否输出时分秒
+	 * 获取电子签约需要的总信息
 	 */
 	getTotalInfo: () => {
 		return JSON.parse(sessionStorage.getItem('totalInfo'));
+	},
+	/**
+	 * 剔除当前完成的任务，并存入sessionStorage
+	 */
+	resetTotalInfo: () => {
+		let totalInfo = sessionStorage.getItem('totalInfo');
+		let authTypes = totalInfo.contractInfo && totalInfo.contractInfo.authTypes;
+		if(authTypes) {
+			totalInfo.contractInfo.authTypes = authTypes.split(',').shift().join(',');
+		}
+		sessionStorage.setItem('totalInfo', JSON.stringify(totalInfo));
 	},
     /**
 	 * 添加日期格式化方法

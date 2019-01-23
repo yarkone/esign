@@ -148,13 +148,24 @@ export default {
                         if(arr_frontIdCard.length) this.totalInfo.userInfo.frontIdCard = arr_frontIdCard[0].materialsPic;
                         if(arr_backIdCard.length) this.totalInfo.userInfo.backIdCard = arr_backIdCard[0].materialsPic;
 
+                        // let params = {
+                        //     serviceId: 'S051',
+                        //     orderNo: this.totalInfo.userInfo.bankOrderNo,
+                        //     signTaskId: this.totalInfo.userInfo.signTaskId,
+
+                        //     processDefKey: this.totalInfo.contractInfo.processDefKey,
+                        //     taskCode: this.totalInfo.contractInfo.taskCode,
+                        //     userId: this.totalInfo.urlParams.userId,
+                        //     econtractBatchno: this.totalInfo.urlParams.econtractBatchno
+                        // }
+
                         let params = {
                             serviceId: 'S052',
                             orderNo: this.totalInfo.userInfo.bankOrderNo,
                             uniformAuthNum: this.totalInfo.userInfo.account,
                             userId: this.totalInfo.urlParams.userId,
                             userType: this.totalInfo.urlParams.userType,
-                            dotNum: this.totalInfo.userInfo.dotNum,
+                            dotNum: this.totalInfo.userInfo.dotCode,
                             areaCode: this.totalInfo.userInfo.areaCode,
 
                             processDefKey: this.totalInfo.contractInfo.processDefKey,
@@ -163,6 +174,7 @@ export default {
                             frontIdCard: this.totalInfo.userInfo.frontIdCard,
                             backIdCard: this.totalInfo.userInfo.backIdCard,
                             name: this.totalInfo.userInfo.name,
+                            idCard: this.totalInfo.userInfo.idCard,
                             authTypes: this.totalInfo.contractInfo.authTypes
                         }
                         // 是否认证完接口
@@ -172,10 +184,10 @@ export default {
                                 sessionStorage.setItem('totalInfo', JSON.stringify(this.totalInfo));
                                 this.goAuthTypes(typesArr[0]);
                             } else {
-                                this.$router.push({
-                                    name: 'contract'
-                                })
-                                this.title = '客户签名'
+                                // this.$router.push({
+                                //     name: 'contract'
+                                // })
+                                // this.title = '客户签名'
                             }
                             console.log(res);
                         }).catch(error => {
@@ -219,10 +231,11 @@ export default {
         let params = {
             serviceId: 'S055',
             orderNo : urlParams.orderNo,
-            assurerNo: urlParams.assurerNo
+            assurerNo: urlParams.assurerNo,
+            userId: urlParams.userId
         };
 
-        this.$post('service', params).then(res => {
+        this.$post('service', params).then(res => {console.log('总接口');
             this.setSession(res.data);
             this.signList(() => {
                 this.checkAuthTypes();

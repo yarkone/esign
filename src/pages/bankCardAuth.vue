@@ -1,9 +1,13 @@
 <template>
     <div class="padding2020 bankCardAuth">
         <div class="white-box">
-            <div class="result-panel">
+            <div class="result-panel" v-show="isPass">
                 <i class="iconfont color-success i-success">&#xe784;</i>
                 <span class="result-text">验证通过</span>
+            </div>
+            <div class="result-panel" v-show="!isPass">
+                <i class="iconfont color-fail i-success">&#xe706;</i>
+                <span class="result-text">验证失败</span>
             </div>
             <div class="list-wrap">
                 <div class="list-item vux-1px-b"><div class="list-item-left">姓名：</div><div class="list-item-right">{{totalInfo && totalInfo.userInfo && totalInfo.userInfo.name || ''}}</div></div>
@@ -43,7 +47,8 @@
         },
         data() { 
             return {
-                totalInfo: null
+                totalInfo: null,
+                isPass: fasle
             }
         },
         methods: {
@@ -65,19 +70,21 @@
                 uniformAuthNum: this.totalInfo.userInfo.account,
                 userId: this.totalInfo.urlParams.userId,
                 userType: this.totalInfo.urlParams.userType,
-                dotNum: this.totalInfo.userInfo.dotNum,
+                dotNum: this.totalInfo.userInfo.dotCode,
                 areaCode: this.totalInfo.userInfo.areaCode,
 
                 name: this.totalInfo.userInfo.name,
                 idCard: this.totalInfo.userInfo.idCard,
                 authTaskId: this.totalInfo.authTaskId,
-                // certType: 0,
-                reserveMobile: this.totalInfo.mobile,
+                reserveMobile: this.totalInfo.userInfo.mobile,
                 cardNo: this.totalInfo.userInfo.bankCardNo
-                // signTaskId: this.totalInfo.userInfo.id
             }
             this.$post('bankCard/bankCardSign', params).then(res => {
-                console.log(res);
+                if(res.data && res.data.busiCode == 0) {
+                    this.isPass = true;
+                } else {
+                    this.isPass = false;
+                }
             }).catch(error => {
                 console.log(error);
             })
