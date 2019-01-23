@@ -127,6 +127,11 @@
 
 <style lang="less" scoped>
     @import '../style/defined.less';
+    @import '../style/iconfont.less';
+    @import '../style/mixin.less';
+    @import '../style/public.less';
+    @import '../style/layout.less';
+    
     .mobileAuth {
         font-size: 34px;
         .title {

@@ -74,6 +74,12 @@
 </script>
 
 <style lang="less" scoped>
+    @import '../style/defined.less';
+    @import '../style/iconfont.less';
+    @import '../style/mixin.less';
+    @import '../style/public.less';
+    @import '../style/layout.less';
+    
     .layout {
         background-color: #fff;
         margin-top: 20px;
