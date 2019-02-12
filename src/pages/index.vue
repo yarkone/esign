@@ -1,6 +1,16 @@
 <template>
     <div class="wrap">
-        <x-button type="warn">开始电子签约</x-button>
+        <div class="layout layout-img">
+            <div class="img-panel">
+                <img class="img" src="../assets/img/start_male.png" alt="">
+                <img class="img_border" src="../assets/img/block.png" alt="">
+            </div>
+        </div>
+        <div class="layout">
+            <div class="submit-panel">
+                <x-button type="warn" @click.native="start">开始电子签约</x-button>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -41,19 +51,34 @@ export default {
             config: 'bankCardAuth,mobileAuth,bodyAuth,realPhotoAuth'
         }
     },
-    beforeRouteUpdate (to, from, next) {
-      let isBack = this.$router.isBack
-      if (isBack) {
-        this.transitionName = 'slide-right'
-      } else {
-        this.transitionName = 'slide-left'
-      }
-      this.$router.isBack = false
-      next()
-    },
     methods: {
-        haha() {
-            
+        start() {
+            let urlParams = null;
+            if(tool.getTotalInfo('totalInfo')) {
+                urlParams = tool.getTotalInfo('totalInfo').urlParams;
+                this.totalInfo = tool.getTotalInfo('totalInfo');
+            } else {
+                urlParams = querystring.parse(window.location.search);
+                this.totalInfo = {
+                    urlParams: urlParams
+                };
+            }
+
+            let params = {
+                serviceId: 'S055',
+                orderNo : urlParams.orderNo,
+                assurerNo: urlParams.assurerNo,
+                userId: urlParams.userId
+            };
+
+            this.$post('service', params).then(res => {
+                this.setSession(res.data);
+                this.signList(() => {
+                    this.checkAuthTypes();
+                });
+            }).catch(error => {
+                console.log(error);
+            })
         },
         goBack() {
             let that = this;
@@ -78,7 +103,7 @@ export default {
             // sessionStorage.setItem('downServer', data.downServer);
             // sessionStorage.setItem('userInfo', data.userInfo);
         },
-        goAuthTypes(type) {
+        goAuthTypes(type) {console.log(type)
             if(!type || !this.configMap[type]) {
                 return;
             }
@@ -124,80 +149,72 @@ export default {
             })
         },
         checkAuthTypes() {
-            let typesArr = this.totalInfo.contractInfo.authTypes.split(',');
-            if(typesArr.length) { 
-                // 获取身份证正反面
-                this.$fetch('http://hrfax.imwork.net:18887/api/creditMaterials/getSfzPic', {orderNo: this.totalInfo.userInfo.bankOrderNo, userId: this.totalInfo.urlParams.userId, assurerNo: this.totalInfo.urlParams.assurerNo}).then(res => {
-                    if(res.data && res.data.creditMaterials && res.data.creditMaterials.length) {
-                        let arr_frontIdCard = res.data.creditMaterials.filter((it) => {
-                            return it.materialsCode === 'sfzzm';
-                        });
-                        let arr_backIdCard = res.data.creditMaterials.filter((it) => {
-                            return it.materialsCode === 'sfzfm';
-                        });
-                        if(arr_frontIdCard.length) this.totalInfo.userInfo.frontIdCard = arr_frontIdCard[0].materialsPic;
-                        if(arr_backIdCard.length) this.totalInfo.userInfo.backIdCard = arr_backIdCard[0].materialsPic;
+            let typesArr = this.totalInfo.contractInfo.authTypes ? this.totalInfo.contractInfo.authTypes.split(',') : [];
+            this.getSfzPic(() => {
+                let params = {
+                    serviceId: 'S052',
+                    orderNo: this.totalInfo.userInfo.bankOrderNo,
+                    uniformAuthNum: this.totalInfo.userInfo.account,
+                    userId: this.totalInfo.urlParams.userId,
+                    userType: this.totalInfo.urlParams.userType,
+                    dotNum: this.totalInfo.userInfo.dotCode,
+                    areaCode: this.totalInfo.userInfo.areaCode,
 
-                        // let params = {
-                        //     serviceId: 'S051',
-                        //     orderNo: this.totalInfo.userInfo.bankOrderNo,
-                        //     signTaskId: this.totalInfo.userInfo.signTaskId,
-
-                        //     processDefKey: this.totalInfo.contractInfo.processDefKey,
-                        //     taskCode: this.totalInfo.contractInfo.taskCode,
-                        //     userId: this.totalInfo.urlParams.userId,
-                        //     econtractBatchno: this.totalInfo.urlParams.econtractBatchno
-                        // }
-
-                        let params = {
-                            serviceId: 'S052',
-                            orderNo: this.totalInfo.userInfo.bankOrderNo,
-                            uniformAuthNum: this.totalInfo.userInfo.account,
-                            userId: this.totalInfo.urlParams.userId,
-                            userType: this.totalInfo.urlParams.userType,
-                            dotNum: this.totalInfo.userInfo.dotCode,
-                            areaCode: this.totalInfo.userInfo.areaCode,
-
-                            processDefKey: this.totalInfo.contractInfo.processDefKey,
-                            taskCode: this.totalInfo.contractInfo.taskCode,
-                            authCount: typesArr.length,
-                            frontIdCard: this.totalInfo.userInfo.frontIdCard,
-                            backIdCard: this.totalInfo.userInfo.backIdCard,
-                            name: this.totalInfo.userInfo.name,
-                            idCard: this.totalInfo.userInfo.idCard,
-                            authTypes: this.totalInfo.contractInfo.authTypes
-                        }
-                        // 是否认证完接口
-                        this.$post('auth/authRecordsNew', params).then(res => {
-                            if(res.data && res.data.isComplete == 1) {
-                                this.totalInfo.authTaskId = res.data.id;
-                                sessionStorage.setItem('totalInfo', JSON.stringify(this.totalInfo));
-                                this.goAuthTypes(typesArr[0]);
-                            } else {
-                                // this.$router.push({
-                                //     name: 'contract'
-                                // })
-                                // this.title = '客户签名'
-                            }
-                            console.log(res);
-                        }).catch(error => {
-                            console.log(error);
-                        })
+                    processDefKey: this.totalInfo.contractInfo.processDefKey,
+                    taskCode: this.totalInfo.contractInfo.taskCode,
+                    authCount: typesArr.length,
+                    frontIdCard: this.totalInfo.userInfo.frontIdCard,
+                    backIdCard: this.totalInfo.userInfo.backIdCard,
+                    name: this.totalInfo.userInfo.name,
+                    idCard: this.totalInfo.userInfo.idCard,
+                    authTypes: this.totalInfo.contractInfo.authTypes
+                }
+                // 是否认证完接口
+                this.$post('auth/authRecordsNew', params).then(res => {
+                    if(res.data && res.data.isComplete == 1) {
+                        this.totalInfo.authTaskId = res.data.id;
+                        sessionStorage.setItem('totalInfo', JSON.stringify(this.totalInfo));
+                        console.log(typesArr)
+                        this.goAuthTypes(typesArr.length && typesArr[0]);
                     } else {
-                        this.$vux.alert.show({
-                            title: '提示',
-                            content: '无法获取身份证正反面！'
+                        sessionStorage.setItem('totalInfo', JSON.stringify(this.totalInfo));
+                        this.$router.push({
+                            name: 'contract'
                         })
-                    }                    
+                    }
+                    console.log(res);
                 }).catch(error => {
                     console.log(error);
                 })
-            }
-        }
-    },
-    watch: {
-        $route(to, from){
-            this.title = to.meta.title;
+            });
+        },
+        getSfzPic(cb) {
+            this.$fetch(this.$getApi('creditMaterials/getSfzPic', 'estage'),
+                {
+                    orderNo: this.totalInfo.userInfo.bankOrderNo,
+                    userId: this.totalInfo.urlParams.userId,
+                    assurerNo: this.totalInfo.urlParams.assurerNo
+                }).then(res => {
+                if(res.data && res.data.creditMaterials && res.data.creditMaterials.length) {
+                    let arr_frontIdCard = res.data.creditMaterials.filter((it) => {
+                        return it.materialsCode === 'sfzzm';
+                    });
+                    let arr_backIdCard = res.data.creditMaterials.filter((it) => {
+                        return it.materialsCode === 'sfzfm';
+                    });
+                    if(arr_frontIdCard.length) this.totalInfo.userInfo.frontIdCard = arr_frontIdCard[0].materialsPic;
+                    if(arr_backIdCard.length) this.totalInfo.userInfo.backIdCard = arr_backIdCard[0].materialsPic;
+
+                    if(cb && typeof cb === 'function') cb();
+                } else {
+                    this.$vux.alert.show({
+                        title: '提示',
+                        content: '无法获取身份证正反面！'
+                    })
+                }                    
+            }).catch(error => {
+                console.log(error);
+            })
         }
     },
     mounted () {
@@ -207,32 +224,7 @@ export default {
         // })
         // this.title = '银行卡认证'
 
-        let urlParams = null;
-        if(tool.getTotalInfo('totalInfo')) {
-            urlParams = tool.getTotalInfo('totalInfo').urlParams;
-            this.totalInfo = tool.getTotalInfo('totalInfo');
-        } else {
-            urlParams = querystring.parse(window.location.search);
-            this.totalInfo = {
-                urlParams: urlParams
-            };
-        }
-
-        let params = {
-            serviceId: 'S055',
-            orderNo : urlParams.orderNo,
-            assurerNo: urlParams.assurerNo,
-            userId: urlParams.userId
-        };
-
-        this.$post('service', params).then(res => {console.log('总接口');
-            this.setSession(res.data);
-            this.signList(() => {
-                this.checkAuthTypes();
-            });
-        }).catch(error => {
-            console.log(error);
-        })
+        
         
         // this.$router.push({
         //     name: 'contract'
@@ -250,4 +242,37 @@ export default {
     @import '../style/public.less';
     @import '../style/layout.less';
 
+    .layout {
+        background-color: #fff;
+        margin-top: 20px;
+        padding: 60px 0;
+        &.layout-img {
+            padding: 120px 0;
+        }
+        .img-panel {
+            margin: 0 auto;
+            width: 200px;
+            height: 200px;
+            position: relative;
+            img {
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                left: 50%;
+                margin-left: -100px;
+            }
+        }
+    }
+    .img-description {
+        margin-top: 130px;
+        p {
+            text-align: center;
+            font-size: 34px;
+            line-height: 60px;
+        }
+    }
+    .submit-panel {
+        padding: 0 20px;
+        margin-top: 20px;
+    }
 </style>

@@ -4,6 +4,7 @@ import index from '@/pages/index'
 import bankCardAuth from '@/pages/bankCardAuth'
 import mobileAuth from '@/pages/mobileAuth'
 import bodyAuth from '@/pages/bodyAuth'
+import bodyAuthResult from '@/pages/bodyAuthResult'
 import realPhotoAuth from '@/pages/realPhotoAuth'
 import contract from '@/pages/contract'
 
@@ -26,11 +27,17 @@ export default new Router({
   	routes: [{
 		path: '',
 		name: '',
-		component: index
+		component: index,
+		meta: {
+			title: '电子签约'
+		}
 	  }, {
 		path: '/',
 		name: 'index',
-		component: index
+		component: index,
+		meta: {
+			title: '电子签约'
+		}
 	}, {
 		path: '/bankCardAuth',
 		name: 'bankCardAuth',
@@ -51,6 +58,16 @@ export default new Router({
 		component: bodyAuth,
 		meta: {
 			title: '活体检测',
+			keepAlive: false, //此组件需要被缓存
+			isBack: false, //用于判断上一个页面是哪个
+			isFirstEnter: false //是否第一次进入页面
+		}
+	}, {
+		path: '/bodyAuthResult',
+		name: 'bodyAuthResult',
+		component: bodyAuthResult,
+		meta: {
+			title: '活体检测结果',
 			keepAlive: false, //此组件需要被缓存
 			isBack: false, //用于判断上一个页面是哪个
 			isFirstEnter: false //是否第一次进入页面

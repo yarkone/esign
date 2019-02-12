@@ -2,10 +2,10 @@
     <div class="padding2020 mobileAuth">
         <div class="white-box" v-show="!showCodePanel">
             <div class="title" style="text-align: center;">
-                金飞手机号码
+                {{totalInfo && totalInfo.userInfo && totalInfo.userInfo.name}}手机号码
             </div>
             <div class="phone-number">
-                13202154518
+                {{mobileFormat(totalInfo && totalInfo.userInfo && totalInfo.userInfo.mobile)}}
             </div>
             <div class="button-wrap">
                 <x-button type="warn" @click.native="sendCode">发送验证码</x-button>
@@ -14,7 +14,7 @@
 
         <div class="white-box code-verify" v-show="showCodePanel">
             <div class="title title-code">
-                您正在使用手机尾号4527进行工行电子签约授权认证
+                您正在使用手机尾号{{mobileSuffix(totalInfo && totalInfo.userInfo && totalInfo.userInfo.mobile)}}进行工行电子签约授权认证
             </div>
             <group>
                 <x-input class="weui-vcode" placeholder="请输入" v-model="value" keyboard="number" :max="8" style="border-bottom: 1px solid #cf000d;padding-right: 0;border-top: 1px solid #fff;">
@@ -64,6 +64,12 @@
             this.totalInfo = tool.getTotalInfo('totalInfo');
         },
         methods: {
+            mobileSuffix (mobile) {
+                return mobile ? mobile.substring(7,11) : '';
+            },
+            mobileFormat (mobile) {
+                return mobile ? mobile.substring(0,4) + '****' + mobile.substring(7,11) : '';
+            },
             showLoading (cb) {
                 this.$vux.loading.show();
 
@@ -78,7 +84,7 @@
                     authTaskId: this.totalInfo.authTaskId,
                     mobileNo: this.totalInfo.userInfo.mobile,
                     link: '',
-                    sceneCode: this.totalInfo.contractInfo.areaCode
+                    sceneCode: this.totalInfo.contractInfo.sceneCode
                 }
 
                 this.$post('sms/sendMsg', params).then(res => {
@@ -117,9 +123,25 @@
                 
             },
             next () {
-                this.$router.push({
-                    name: 'bodyAuth'
+                // this.$router.push({
+                //     name: 'bodyAuth'
+                // })
+                let params = {
+                    serviceId: 'S016',
+                    messageCode: this.value,
+                    mobileNo: this.totalInfo.userInfo.mobile,
+                    authTaskId: this.totalInfo.authTaskId,
+                    orderNo: this.totalInfo.userInfo.bankOrderNo,
+                }
+
+                this.$post('sms/validateMsg', params).then(res => {
+                    console.log(res);
+                    tool.resetTotalInfo();
+                    tool.goNextAuthTypes();
+                }).catch(error => {
+                    console.log(error);
                 })
+                
             }
         }
     }

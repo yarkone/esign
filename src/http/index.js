@@ -3,9 +3,19 @@ import Vue from 'vue'
 
 
 let authorityTip, requestingCount = 0;
+let _base_host, _estage_host, _wind_host, _img_host;
+if(process.env.NODE_ENV == 'development') {
+    _base_host = 'http://hrfax.imwork.net:16161/';
+    _estage_host = 'http://hrfax.imwork.net:18887/api/';
+    _wind_host = 'http://hrfax.imwork.net:18887/';
+    _img_host = 'http://hrfax.imwork.net:10082';
+} else {
+    _base_host = 'http://carloan.hrfax.cn/api';
+    _img_host = 'http://carloan.hrfax.cn/api/img/';
+}
 
 const startLoading = () => {
-    Vue.$vux.loading.show()
+    Vue.$vux.loading.show();
 }
 
 const stopLoading = () => {
@@ -22,8 +32,7 @@ const handleResponseLoading = () => {
 }
 
 // axios.defaults.timeout = 5000;
-axios.defaults.baseURL ='http://hrfax.imwork.net:16161/';
-
+axios.defaults.baseURL = _base_host;
 
 //http request 拦截器
 axios.interceptors.request.use(
@@ -187,3 +196,22 @@ export function put(url,data = {}){
          })
   })
 }
+
+export function getApi(method, name) {
+  // name不传值，代表取mock中假数据
+  if(!name)
+    return 'http://127.0.0.1:8083/mock/' + method;
+  else
+    switch (name) {
+      case 'estage':
+        return _estage_host + method;
+      case 'wind':
+        return _wind_host + method;
+      case 'img':
+        return _img_host + method;
+      default:
+        return _base_host + method;
+    }
+}
+
+

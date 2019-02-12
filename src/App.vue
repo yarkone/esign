@@ -1,7 +1,7 @@
 <template>
 	<div id="app">
 		<x-header
-            :left-options="{backText: '', preventGoBack: true}"
+            :left-options="{backText: '', showBack: showBack}"
             @on-click-back="goBack"
             class="vux-1px-b"
             style="background-color: #fff;width:100%;position:fixed;left:0;top:0;z-index:100;"
@@ -26,6 +26,7 @@
 			return {
 				totalInfo: null,
 				title: '电子签约',
+				showBack: false,
 				transitionName: 'slide-left'
 			}
 		},

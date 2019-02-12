@@ -1,11 +1,11 @@
 <template>
     <div class="padding2020 bankCardAuth">
         <div class="white-box">
-            <div class="result-panel" v-show="isPass">
+            <div class="result-panel" v-show="isMounted && isPass">
                 <i class="iconfont color-success i-success">&#xe784;</i>
                 <span class="result-text">验证通过</span>
             </div>
-            <div class="result-panel" v-show="!isPass">
+            <div class="result-panel" v-show="isMounted && !isPass">
                 <i class="iconfont color-fail i-success">&#xe706;</i>
                 <span class="result-text">验证失败</span>
             </div>
@@ -45,10 +45,11 @@
         components: {
             XButton
         },
-        data() { 
+        data() {
             return {
                 totalInfo: null,
-                isPass: fasle
+                isPass: false,
+                isMounted: false
             }
         },
         methods: {
@@ -62,6 +63,7 @@
             
         },
         mounted() {
+            this.isMounted = true;
             this.totalInfo = tool.getTotalInfo('totalInfo');
 
             let params = {
@@ -80,7 +82,7 @@
                 cardNo: this.totalInfo.userInfo.bankCardNo
             }
             this.$post('bankCard/bankCardSign', params).then(res => {
-                if(res.data && res.data.busiCode == 0) {
+                if(res.data && res.data.busiCode == 0) {console.log('成功')
                     this.isPass = true;
                 } else {
                     this.isPass = false;

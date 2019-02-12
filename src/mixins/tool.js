@@ -2,8 +2,9 @@
  * @Author: yarkone 
  * @Date: 2018-11-05 10:22:51 
  * @Last Modified by: yarkone
- * @Last Modified time: 2019-01-23 20:27:31
+ * @Last Modified time: 2019-02-12 17:26:20
  */
+import Vue from 'vue'
 
 export const tool = {
 	/**
@@ -11,6 +12,13 @@ export const tool = {
 	 */
 	getTotalInfo: () => {
 		return JSON.parse(sessionStorage.getItem('totalInfo'));
+	},
+	/**
+	 * 获取地址
+	 */
+	getImgSrc: (src) => {
+		console.log(Vue.$getApi)
+		return Vue.$getApi(src, 'img');
 	},
 	/**
 	 * 剔除当前完成的任务，并存入sessionStorage
@@ -21,7 +29,40 @@ export const tool = {
 		if(authTypes) {
 			totalInfo.contractInfo.authTypes = authTypes.split(',').shift().join(',');
 		}
+		debugger
 		sessionStorage.setItem('totalInfo', JSON.stringify(totalInfo));
+	},
+	/**
+	 * 剔除当前完成的任务，并存入sessionStorage
+	 */
+	goNextAuthTypes: () => {
+		let totalInfo = sessionStorage.getItem('totalInfo');
+		let authTypes = totalInfo.contractInfo && totalInfo.contractInfo.authTypes;
+		let configMap = {
+			bankCardAuth: {
+				path: 'bankCardAuth',
+				title: '银行卡认证'
+			},
+			mobileAuth: {
+				path: 'mobileAuth',
+				title: '短信认证'
+			},
+			bodyAuth: {
+				path: 'bodyAuth',
+				title: '活体检测'
+			},
+			realPhotoAuth: {
+				path: 'realPhotoAuth',
+				title: '人脸对比'
+			}
+		};
+		if(!authTypes || !configMap[authTypes]) {
+			return;
+		}
+		Vue.$router.push({
+			name: configMap[authTypes].path
+		})
+		// this.title = configMap[authTypes].title
 	},
     /**
 	 * 添加日期格式化方法

@@ -7,7 +7,7 @@ import Vuex from './store/index'
 import App from './App'
 import { LoadingPlugin, ToastPlugin, AlertPlugin, ConfirmPlugin, BusPlugin } from 'vux'
 import promise from 'es6-promise'
-import {post,fetch,patch,put} from './http/index'
+import {post, fetch, patch, put, getApi} from './http/index'
 import 'lib-flexible/flexible'
 
 
@@ -16,6 +16,7 @@ Vue.prototype.$post=post;
 Vue.prototype.$fetch=fetch;
 Vue.prototype.$patch=patch;
 Vue.prototype.$put=put;
+Vue.prototype.$getApi=getApi;
 
 promise.polyfill()
 

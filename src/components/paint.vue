@@ -77,6 +77,7 @@
                     let compressStream = this.compress(image, 60);
                     $("#signImg").attr("src", "data:image/png;base64," + compressStream).show();
                 };
+                this.$parent.submitSign();
             },
             cancel () {
                 this.resetBoard();
@@ -209,7 +210,7 @@
         right: 0;
         bottom: 0;
         background: rgba(0, 0, 0, 0.4);
-        z-index: 99999;
+        z-index: 999;
         .signed-img {
             position: absolute;
             bottom: 670px;

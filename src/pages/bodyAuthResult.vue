@@ -5,14 +5,24 @@
                 <img src="../assets/img/head.png" alt="">
                 <img src="../assets/img/block.png" alt="">
             </div>
-            <div class="img-description">
-                <p>体验人脸识别新科技</p>
-                <p>创建面部密码，保证<span class="color-main">签约</span>安全</p>
-            </div>
         </div>
         <div class="layout">
+            <div class="fail-panel">
+                <div class="fail-item">
+                    <img class="img" src="../assets/img/img-1@2x.png" alt="">
+                    <p>不要靠太近</p>
+                </div>
+                <div class="fail-item">
+                    <img class="img" src="../assets/img/img-2@2x.png" alt="">
+                    <p>不要靠太远</p>
+                </div>
+                <div class="fail-item">
+                    <img class="img" src="../assets/img/img-3@2x.png" alt="">
+                    <p>光线主暗</p>
+                </div>
+            </div>
             <div class="submit-panel">
-                <x-button type="warn" @click.native="next">刷脸验证</x-button>
+                <x-button type="warn" @click.native="next">重新验证</x-button>
             </div>
         </div>
     </div>
@@ -32,27 +42,12 @@
             }
         },
         mounted() {
-            // alert('浏览器版本：' + window.navigator.userAgent)
-            // var params = {
-            //     account: '100000004',
-            //     password: '96e79218965eb72c92a549dd5a330112',
-            //     LoginAgent: 'WEB'
-            // }
-            // this.$fetch('/login/doLogin', params).then((response) => {
-            //     alert(response)
-            // })
-            var params = {"userId":"6995","userType":"0","orderNo":"vx001002001530694878552674304","uniformAuthNum":"360209841","dotNum":"0023","areaCode":"1804","serviceId":"S052","processDefKey":"icbchbxydemandcarloanprocessNobank","taskCode":"usertask5@ICBCHBXYDemandCarloanProcessNobank","authCount":"4","name":"张二","idCard":"511529198703010799","frontIdCard":"\/0180100000\/0180400000\/2019\/01\/04\/vx001002001530694878552674304\/20190104-1031-09340-60a8cbe0-7000-315c-c0e4-2360cec35798.jpg","backIdCard":"\/0180100000\/0180400000\/2019\/01\/04\/vx001002001530694878552674304\/20190104-1031-17482-072a6f40-9630-3b82-8bf1-18b965657672.jpg","authTypes":"bankCardAuth,mobileAuth,bodyAuth,faceContrastAuth"}
-
-            this.$post('http://hrfax.imwork.net:16161/service/', params).then(res => {
-                
-            }).catch(error => {
-                console.log(error);
-            })
         },
         methods: {
             next () {
                 var params = {
-                    "return_url": "http://192.168.0.21:8028/bodyAuthResult",
+                    // "return_url": "http://192.168.0.21:8028/bodyAuthResult",
+                    "return_url": "http://carloan.hrfax.cn",
                     "notify_url": "http://112.74.99.75:8092/valueAdded/facePlusPlusLiteGetTokenNotifyUrl.html",
                     "biz_no": "863258996",
                     "comparison_type": "1",
@@ -95,6 +90,18 @@
                 position: absolute;
                 left: 50%;
                 margin-left: -215px;
+            }
+        }
+        .fail-panel {
+            display: flex;
+            width: 100%;
+            padding: 0 30px;
+            .fail-item {
+                flex: 1;
+                text-align: center;
+                .img {
+                    width: 125px;
+                }
             }
         }
     }
