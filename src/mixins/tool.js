@@ -2,7 +2,7 @@
  * @Author: yarkone 
  * @Date: 2018-11-05 10:22:51 
  * @Last Modified by: yarkone
- * @Last Modified time: 2019-02-12 17:26:20
+ * @Last Modified time: 2019-02-13 11:25:35
  */
 import Vue from 'vue'
 
@@ -24,20 +24,31 @@ export const tool = {
 	 * 剔除当前完成的任务，并存入sessionStorage
 	 */
 	resetTotalInfo: () => {
-		let totalInfo = sessionStorage.getItem('totalInfo');
-		let authTypes = totalInfo.contractInfo && totalInfo.contractInfo.authTypes;
-		if(authTypes) {
-			totalInfo.contractInfo.authTypes = authTypes.split(',').shift().join(',');
+		let totalInfo;
+		try {
+			totalInfo = JSON.parse(sessionStorage.getItem('totalInfo'));
+		} catch (e) {
+			totalInfo = null;
 		}
-		debugger
+		let authTypes = totalInfo.contractInfo ? totalInfo.contractInfo.authTypes : '';
+		if(authTypes) {
+			let arr = authTypes.split(',');
+			arr.shift();
+			totalInfo.contractInfo.authTypes = arr.join(',');
+		}
 		sessionStorage.setItem('totalInfo', JSON.stringify(totalInfo));
 	},
 	/**
-	 * 剔除当前完成的任务，并存入sessionStorage
+	 * 任务跳转
 	 */
-	goNextAuthTypes: () => {
-		let totalInfo = sessionStorage.getItem('totalInfo');
-		let authTypes = totalInfo.contractInfo && totalInfo.contractInfo.authTypes;
+	getNextAuthTypes: () => {
+		let totalInfo;
+		try {
+			totalInfo = JSON.parse(sessionStorage.getItem('totalInfo'));
+		} catch (e) {
+			totalInfo = null;
+		}
+		let authTypes = totalInfo.contractInfo ? totalInfo.contractInfo.authTypes : '';
 		let configMap = {
 			bankCardAuth: {
 				path: 'bankCardAuth',
@@ -56,13 +67,17 @@ export const tool = {
 				title: '人脸对比'
 			}
 		};
-		if(!authTypes || !configMap[authTypes]) {
-			return;
+		if(!authTypes) {
+			return 'contract';
+		} else {
+			let arr = authTypes.split(',');
+			if(!arr.length) return;
+			if(arr[0] && configMap[arr[0]]) {
+				return configMap[arr[0]].path;
+			} else {
+				return '';
+			}
 		}
-		Vue.$router.push({
-			name: configMap[authTypes].path
-		})
-		// this.title = configMap[authTypes].title
 	},
     /**
 	 * 添加日期格式化方法

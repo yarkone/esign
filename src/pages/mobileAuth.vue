@@ -137,7 +137,9 @@
                 this.$post('sms/validateMsg', params).then(res => {
                     console.log(res);
                     tool.resetTotalInfo();
-                    tool.goNextAuthTypes();
+                    this.$router.push({
+                        name: tool.getNextAuthTypes()
+                    });
                 }).catch(error => {
                     console.log(error);
                 })

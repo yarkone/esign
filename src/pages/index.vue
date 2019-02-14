@@ -54,15 +54,15 @@ export default {
     methods: {
         start() {
             let urlParams = null;
-            if(tool.getTotalInfo('totalInfo')) {
-                urlParams = tool.getTotalInfo('totalInfo').urlParams;
-                this.totalInfo = tool.getTotalInfo('totalInfo');
-            } else {
+            // if(tool.getTotalInfo('totalInfo')) {
+            //     urlParams = tool.getTotalInfo('totalInfo').urlParams;
+            //     this.totalInfo = tool.getTotalInfo('totalInfo');
+            // } else {
                 urlParams = querystring.parse(window.location.search);
                 this.totalInfo = {
                     urlParams: urlParams
                 };
-            }
+            // }
 
             let params = {
                 serviceId: 'S055',
@@ -175,7 +175,9 @@ export default {
                         this.totalInfo.authTaskId = res.data.id;
                         sessionStorage.setItem('totalInfo', JSON.stringify(this.totalInfo));
                         console.log(typesArr)
-                        this.goAuthTypes(typesArr.length && typesArr[0]);
+                        this.$router.push({
+                            name: tool.getNextAuthTypes()
+                        });
                     } else {
                         sessionStorage.setItem('totalInfo', JSON.stringify(this.totalInfo));
                         this.$router.push({

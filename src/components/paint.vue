@@ -1,11 +1,17 @@
 <template>
     <div class="mask" v-show="post.isShow">
         <img alt="" class="signed-img" id="signImg">
-        <div class="paint-panel">
-            <div class="paint-title">手绘签名</div>
-            <!-- <div class="paint-board" id="signature"></div> -->
-            <!-- <canvas class="paint-board" id="signature"></canvas> -->
-            <div class="paint-submit">
+        <div class="paint-panel" ref="paintPanel">
+            <div class="paint-content-hand" v-show="post.isNeedHand">{{post.contentHand || ''}}</div>
+            <div class="paint-title" ref="paintTitle">{{post.isNeedHand ? '手绘摘抄内容' : '手绘签名'}}</div>
+            <div class="paint-board clearfix" ref="paintBoard" :style="{width: screenWidth * (post.markList && post.markList.length || 1) + 'px'}">
+                <div class="canvas-wrap" v-for="(item, index) in post.markList" :key="index">
+                    <x-icon @click="prev" type="ios-arrow-left" class="icon-left" size="30" v-show="post.isNeedHand && index !== 0"></x-icon>
+                    <canvas :width="screenWidth" :height="canvasHeight" class="canvas" ref="item"></canvas>
+                    <x-icon @click="next" type="ios-arrow-right" class="icon-right" size="30" v-show="post.isNeedHand && index !== post.markList.length - 1"></x-icon>
+                </div>
+            </div>
+            <div class="paint-submit" ref="paintSubmit">
                 <div class="button button-empty" @click="empty">清空</div>
                 <div class="button button-submit" @click="submit">提交</div>
                 <div class="button button-cancel" @click="cancel">取消</div>
@@ -32,56 +38,142 @@
         data () {
 			return {
                 signFlag: false,
-                signaturePad: null,
-                $signaturePad: null,
+                signaturePad: [],
+                signaturePadEl: [],
+                screenWidth: 0,
+                canvasHeight: 0,
                 ratio: '',
-                imgSrc: ''
+                imgSrc: '',
+                idx: 0,
+                isContentHanded: false,
             }
 		},
 		mounted () {
 
             this.removeBlanks();
-            this.initBoard();            
-            
-            // console.log(this.$signaturePad.jSignature('getData', 'native').length);//判断js画布是否空白
-		},
+            // this.initBoard();
+            console.log()
+            // console.log(this.signaturePadEl.jSignature('getData', 'native').length);//判断js画布是否空白
+        },
         methods: {
             initBoard () {
-                let screenWidth = $(window).width(),
-                    canvasHeight = $('.paint-panel').outerHeight() - $('.paint-title').outerHeight() - $('.paint-submit').outerHeight();
-                this.$signaturePad = $('<canvas width="'+ screenWidth +'" height="'+ canvasHeight +'" class="paint-board" id="signature"></canvas>');
-                $('.paint-title').after(this.$signaturePad);
-
-                this.signaturePad = new signaturePad(this.$signaturePad[0], {
-                    penColor: "rgb(0, 0, 0)",
-                    // velocityFilterWeight: 0.1,//线条粗细，默认0.7
-                })
+                this.screenWidth = $(window).width();
+                this.canvasHeight = $(this.$refs.paintPanel).outerHeight() - $(this.$refs.paintTitle).outerHeight() - $(this.$refs.paintSubmit).outerHeight();
+                console.log(this.canvasHeight);
+                
+                for(let i = 0; i < this.post.markList.length; i++) {
+                    this.$nextTick(() => {
+                        this.signaturePadEl.push(this.$refs.item[i]);
+                        this.signaturePad.push(new signaturePad(this.signaturePadEl[i], {
+                            penColor: "rgb(0, 0, 0)",
+                            // velocityFilterWeight: 0.1,//线条粗细，默认0.7
+                        }));
+                    });
+                }
             },
             changeEvt () {
-                this.$signaturePad.bind('change', (e) => {
+                this.signaturePadEl.bind('change', (e) => {
                     console.log(e)
                 })
             },
-            resetBoard () {
-                this.signaturePad.clear();
+            resetBoard (isAll) {
+                if(isAll) {
+                    this.signaturePad.forEach((item, index) => {
+                        this.signaturePad[index].clear();
+                    });
+                } else {
+                    this.signaturePad[this.idx].clear();
+                }
             },
             empty () {
                 this.resetBoard();
             },
             submit () {
-                let $clone = this.trimBlankCanvas(this.signaturePad.getTrimPos());
-                this.ratio = $clone.width / $clone.height;
-                let image = new Image();
-                image.src = $clone.toDataURL();
-                image.onload = () => {
-                    let compressStream = this.compress(image, 60);
-                    $("#signImg").attr("src", "data:image/png;base64," + compressStream).show();
-                };
-                this.$parent.submitSign();
+                //判断所有签名是否全部完成
+                for(let i = 0; i < this.signaturePadEl.length; i++) {
+                    if(this.isCanvasBlank(this.signaturePadEl[i])) {
+                        this.$vux.toast.show({
+                            type: 'text',
+                            text: this.post.isNeedHand ? `请绘制第${i + 1}签字内容` : '您还没有绘制签名',
+                            width: '16em',
+                            position: 'center',
+                        });
+                        if(this.post.isNeedHand) {
+                            this.idx = i;
+                            $(this.$refs.paintBoard).animate({
+                                left: -this.idx * this.screenWidth + 'px'
+                            });
+                        }
+                        return false;
+                    }
+                }
+
+                for(let i = 0; i < this.signaturePadEl.length; i++) {
+                    let $clone = this.trimBlankCanvas(this.signaturePad[i].getTrimPos());
+                    this.ratio = $clone.width / $clone.height;
+                    let image = new Image();
+                    image.src = $clone.toDataURL();
+                    image.onload = () => {
+                        let compressStream = this.compress(image, 60);
+                        // $("#signImg").attr("src", "data:image/png;base64," + compressStream).show();
+                        let isComplete = i === this.signaturePadEl.length - 1 ? true : false;
+                        this.$parent.submitSign(this.post.markList[i], compressStream, this.post.isNeedHand, isComplete);
+                    }                    
+                }
+
+                
+                // if(!this.post.isNeedHand) {
+                //     let $clone = this.trimBlankCanvas(this.signaturePad[this.idx].getTrimPos());
+                //     this.ratio = $clone.width / $clone.height;
+                //     let image = new Image();
+                //     let compressStream = this.compress(image, 60);
+                //     // image.src = $clone.toDataURL();
+                //     // image.onload = () => {
+                //     //     $("#signImg").attr("src", "data:image/png;base64," + compressStream).show();
+                //     // };
+                //     this.$parent.submitSign(compressStream);
+                // }
+                
+                
+            },
+            signComplete () {
+                this.resetBoard(true);
+                this.idx = 0;
+                $(this.$refs.paintBoard).animate({
+                    left: -this.idx * this.screenWidth + 'px'
+                })
+                this.post.isShow = false;
             },
             cancel () {
                 this.resetBoard();
+                this.idx = 0;
                 this.post.isShow = false;
+            },
+            //上一张canvas
+            prev () {
+                if(this.idx === 0) {
+                    return false;
+                }
+                this.idx--;
+                $(this.$refs.paintBoard).animate({
+                    left: -this.idx * this.screenWidth + 'px'
+                })
+            },
+            //下一张canvas
+            next () {
+                if(this.idx === this.post.markList.length - 1) {
+                    return false;
+                }
+                this.idx++;
+                $(this.$refs.paintBoard).animate({
+                    left: -this.idx * this.screenWidth + 'px'
+                })
+            },
+            isCanvasBlank (canvas) {
+                let blank = document.createElement('canvas');//系统获取一个空canvas对象
+                blank.width = canvas.width;
+                blank.height = canvas.height;
+                return canvas.toDataURL() === blank.toDataURL();//比较值相等则为空
             },
             compress (image, height) {
                 let cvs = document.createElement('canvas');
@@ -114,9 +206,9 @@
             },
             resizeCanvas () {
                 // var ratio =  Math.max(window.devicePixelRatio || 1, 1);
-                // this.$signaturePad[0].width = this.$signaturePad[0].offsetWidth * ratio;
-                // this.$signaturePad[0].height = this.$signaturePad[0].offsetHeight * ratio;
-                // this.$signaturePad[0].getContext("2d").scale(ratio, ratio);
+                // this.signaturePadEl[0].width = this.signaturePadEl[0].offsetWidth * ratio;
+                // this.signaturePadEl[0].height = this.signaturePadEl[0].offsetHeight * ratio;
+                // this.signaturePadEl[0].getContext("2d").scale(ratio, ratio);
                 // this.signaturePad.clear(); // otherwise isEmpty() might return incorrect value
             },
             trimBlankCanvas (opts) {
@@ -221,6 +313,14 @@
             width: 100%;
             height: 670px;
 
+            .paint-content-hand {
+                background: #fff;
+                width: 100%;
+                padding: 40px;
+                line-height: 46px;
+                position: absolute;
+                bottom: 670px;
+            }
             .paint-title, .paint-submit {
                 width: 100%;
                 height: 100px;
@@ -259,6 +359,24 @@
                 bottom: 100px;
                 // height: 470px;
                 background: #fff;
+                .canvas-wrap {
+                    float: left;
+                    position: relative;
+                    .icon-left {
+                        position: absolute;
+                        left: 38px;
+                        top: 50%;
+                        margin-top: -22px;
+                        fill: #8a8a8a;
+                    }
+                    .icon-right {
+                        position: absolute;
+                        right: 38px;
+                        top: 50%;
+                        margin-top: -22px;
+                        fill: #8a8a8a;
+                    }
+                }
             }
         }
     } 

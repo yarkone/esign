@@ -15,10 +15,10 @@
                 <div class="list-item vux-1px-b"><div class="list-item-left">银行卡号：</div><div class="list-item-right">{{totalInfo && totalInfo.userInfo && totalInfo.userInfo.bankCardNo || ''}}</div></div>
                 <div class="list-item vux-1px-b"><div class="list-item-left">银行卡预留手机号：</div><div class="list-item-right">{{totalInfo && totalInfo.userInfo && totalInfo.userInfo.mobile || ''}}</div></div>
             </div>
-            <div class="rule-area">
-                
+            <div class="rule-area" v-show="isMounted && !isPass">
+                您提交的认证信息有误，请返回后重新核对验证信息。
             </div>
-            <x-button type="warn" @click.native="next">下一步</x-button>
+            <x-button type="warn" @click.native="next">{{isMounted && !isPass ? '返回' : '下一步'}}</x-button>
         </div>
         <!-- <div class="white-box">
             <div class="result-panel">
@@ -54,16 +54,21 @@
         },
         methods: {
             next () {
-                this.$router.push({
-                    name: 'mobileAuth'
-                })
+                
+                if(this.isMounted && !this.isPass) {//失败返回
+                    that.$router.goBack();
+                } else {//成功跳转下一任务节点
+                    tool.resetTotalInfo();
+                    this.$router.push({
+                        name: tool.getNextAuthTypes()
+                    });
+                }
             }
         },
         beforeCreate() {
             
         },
         mounted() {
-            this.isMounted = true;
             this.totalInfo = tool.getTotalInfo('totalInfo');
 
             let params = {
@@ -82,7 +87,8 @@
                 cardNo: this.totalInfo.userInfo.bankCardNo
             }
             this.$post('bankCard/bankCardSign', params).then(res => {
-                if(res.data && res.data.busiCode == 0) {console.log('成功')
+                this.isMounted = true;
+                if(res.data && res.data.busiCode == 0) {
                     this.isPass = true;
                 } else {
                     this.isPass = false;
@@ -105,7 +111,11 @@
             margin-left: 30px;
         }
         .list-wrap {
-            margin: 80px 0 110px 0;
+            margin: 80px 0 60px 0;
+        }
+        .rule-area {
+            margin: 40px 0;
+            font-size: 24px;
         }
     }
 </style>
