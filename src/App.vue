@@ -1,7 +1,7 @@
 <template>
 	<div id="app">
 		<x-header
-            :left-options="{backText: '', showBack: showBack}"
+            :left-options="{backText: '', showBack: showBack, preventGoBack: true}"
             @on-click-back="goBack"
             class="vux-1px-b"
             style="background-color: #fff;width:100%;position:fixed;left:0;top:0;z-index:100;"
@@ -41,32 +41,33 @@
 			next()
 		},
 		created () {
-			this.showBack = false;
-			console.log(this.$router);
-			
+			//首页不需要返回按钮
+			if(this.$route.name === '' || this.$route.name === 'index') {
+				this.showBack = false;
+			}
+			//每个页面的header的title
+			this.title = this.$route.meta.title;
 		},
 		methods: {
 			haha() {
 				
 			},
-			goBack() {debugger
+			goBack() {
 				let that = this;
 				this.$vux.confirm.show({
 					title: '提示',
 					content: '您当前正在进行电子签约，请确定，是否退出？',
 					onCancel () {},
 					onConfirm () {
-						that.$router.goBack();
+						//Todo  跳转到sdk对接方页面
 					}
 				})
-				
 			}
 		},
 		watch: {
 			$route(to, from){
-				console.log(to, from);
-				if(to.name !== '') {
-					this.showBack = false;
+				if(to.name !== '' && to.name !== 'index') {
+					this.showBack = true;
 				}
 				this.title = to.meta.title;
 			}

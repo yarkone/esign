@@ -3,18 +3,18 @@
         <div class="title title-contract-count" style="">
             本次签约，需要签署<span class="color-fail">{{pdfInfo.total}}</span>份协议，已签署<span class="color-fail">{{pdfInfo.signed}}</span>份
         </div>
-        <div class="title title-pdf-name">绍兴个人信息查询授权书</div>
+        <div class="title title-pdf-name">{{pdfInfo.notSignList.length ? pdfInfo.notSignList[currentIndex === pdfInfo.notSignList.length ? currentIndex - 1 : currentIndex].tempName : ''}}</div>
         <div class="pdf" ref="pdfPanel">
             <iframe :src="iframe_src" frameborder="0"></iframe>
         </div>
-        <div class="submit" @click="submit">已阅读并签名</div>
+        <div class="submit" @click="submit">{{submitText}}</div>
         <paint :post="post" ref="paint"></paint>
         <paint :post="post2" ref="paint2"></paint>
     </div>
 </template>
 
 <script>
-    import { XButton } from 'vux'
+    import { XButton, Alert } from 'vux'
     import paint from '../components/paint'
     import { tool } from '../mixins/tool'
     import axios from 'axios'
@@ -50,14 +50,11 @@
                     markList: ['clientSignImg'],
                 },
                 iframe_src: 'about:blank',
-                pdfurls: '../../static/pdfjs/web/viewer.html?file=' + encodeURIComponent('http://192.168.0.186:6262/convert/outStreamFromUrl?url=http://hrfax.imwork.net:10082/0180100000/0180400000/2019/01/21/vx0180400000536920539596328960/00780000000000190121161911000QH0/temp.pdf'),
-                // pdfurls: '../../static/pdfjs/web/viewer.html?file=http://hrfax.imwork.net:10082//0180100000/0180400000/2019/01/19/vx001002001536198159001456640/00780000000000190119150523000QH0/temp.pdf',
-                // pdfurls: 'http://hrfax.imwork.net:10082/0180100000/0180400000/2019/01/09/vx0180400000532667942488248320/00780000000000190109212014000QH0/temp.pdf',
-                scale: 1.2,
-                totalPage: 0,
                 base64Files: {},
                 markPic: {},
                 currentIndex: 0,//当前签署的合同索引
+                submitText: '已阅读并签名',//签名页的按钮
+                canSign: true,//当前合同是否能签名
             }
         },
         mounted() {
@@ -79,6 +76,9 @@
                 this.pdfInfo = Object.assign(this.pdfInfo, res.data);
                 let pdf_url = this.pdfInfo.notSignList.length ? this.$getApi(this.pdfInfo.notSignList[this.currentIndex].contractPdfUrl, 'img') : '';
                 this.loadPdf(pdf_url);
+                this.getSignInfo(() => {
+                    this.initPaint();
+                });
             }).catch(error => {
                 console.log(error);
             })
@@ -89,14 +89,39 @@
                 console.log(file)
                 this.$nextTick(() => {
                     this.iframe_src = '../../static/pdfjs/web/viewer.html?file=' + encodeURIComponent(file);
-                    this.getSignInfo();
                 });
             },
-            submit () {
-                if(this.post.isNeedHand === 1) {
-                    this.post.isShow = true;
-                } else {
-                    this.post2.isShow = true;
+
+            submit () {console.log(this.currentIndex)
+                //最后一个合同签署完成直接提示“签署完成”
+                if (this.currentIndex === this.pdfInfo.notSignList.length) {
+                    return this.$vux.alert.show({
+                                title: '提示',
+                                content: `本次签约，需要签署${this.pdfInfo.notSignList.length}份协议，已签署${this.pdfInfo.notSignList.length}份`,
+                                buttonText: '结束本次签约',
+                            })
+                }
+
+                //点击底部按钮时，除了第一个合同其他合同需加载对应合同
+                if(this.currentIndex > 0 && this.currentIndex < this.pdfInfo.notSignList.length && !this.canSign) {
+                    let pdf_url = this.pdfInfo.notSignList.length ? this.$getApi(this.pdfInfo.notSignList[this.currentIndex].contractPdfUrl, 'img') : '';
+                    this.loadPdf(pdf_url);
+                    this.getSignInfo(() => {
+                        this.initPaint();
+                    });
+                    this.submitText = '已阅读并签名';
+                }
+                if(this.canSign) {
+                    if(this.post.isNeedHand == 1) {
+                        this.post.isShow = true;
+                    } else {
+                        this.$refs.paint.signComplete();
+                        this.post2.isShow = true;
+                    }
+                }
+                //点击底部按钮时，除了第一个合同其他合同加载完对应合同时，将canSign置为true
+                if(this.currentIndex > 0 && this.currentIndex < this.pdfInfo.notSignList.length) {
+                    this.canSign = true;
                 }
             },
             doUploadSignImg() {
@@ -111,7 +136,7 @@
                     console.log(error);
                 })
             },
-            getSignInfo() {
+            getSignInfo(cb) {
                 let params = {
                     serviceId: 'S017',
                     orderNo: this.totalInfo.userInfo.bankOrderNo,
@@ -120,11 +145,14 @@
                 this.$post('service', params).then(res => {
                     console.log(res);
                     this.post = Object.assign(this.post, res.data);
-                    this.$refs.paint.initBoard();
-                    this.$refs.paint2.initBoard();
+                    if(cb && typeof cb === 'function') cb();
                 }).catch(error => {
                     console.log(error);
                 })
+            },
+            initPaint() {
+                this.$refs.paint.initBoard();
+                this.$refs.paint2.initBoard();
             },
             submitSign(key, compressStream, isNeedHand, isComplete) {
                 const that = this;
@@ -133,7 +161,6 @@
                 //如果签名子组件传来的是无需手动摘抄，则说明是签名已完成
                 if(!isNeedHand) {
                     console.log(this.base64Files);
-                    this.$refs.paint2.signComplete();
                     let arr = [];
                     for (let i in this.base64Files) {
                         let params = {
@@ -155,7 +182,7 @@
                         console.log(arguments);
                         let temp = 0;
                         for (let i in that.base64Files) {
-                            that.markPic[i] = arguments[temp].data && arguments[temp].data.fileName;
+                            that.markPic[i] = arguments.length ? arguments[temp] && arguments[temp].data && arguments[temp].data.fileName : {};
                             temp++;
                         }
                         console.log(that.markPic);
@@ -183,6 +210,7 @@
                         }
                         console.log(data);
                         that.$post('service', data).then(res => {
+                            that.$refs.paint2.signComplete();
                             console.log(res);
                             that.$post('service', {
                                 serviceId: 'U004',
@@ -195,7 +223,14 @@
                             }).then(res => {
                                 console.log(res);
                                 that.pdfInfo.signed++;
+                                that.currentIndex++;
+                                that.base64Files = {};
+                                that.markPic = {};
+                                that.submitText = '继续下一份签名';
                                 that.loadPdf(that.$getApi(res.data, 'img'));
+                                if(that.currentIndex < that.pdfInfo.notSignList.length) {
+                                    that.canSign = false;
+                                }                                
                             }).catch(error => {
                                 console.log(error);
                             })

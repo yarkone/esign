@@ -37,7 +37,6 @@
         },
         data () {
 			return {
-                signFlag: false,
                 signaturePad: [],
                 signaturePadEl: [],
                 screenWidth: 0,
@@ -45,7 +44,6 @@
                 ratio: '',
                 imgSrc: '',
                 idx: 0,
-                isContentHanded: false,
             }
 		},
 		mounted () {
@@ -114,7 +112,7 @@
                     let image = new Image();
                     image.src = $clone.toDataURL();
                     image.onload = () => {
-                        let compressStream = this.compress(image, 60);
+                        let compressStream = this.compress(image, this.post.isNeedHand ? 40 : 60);
                         // $("#signImg").attr("src", "data:image/png;base64," + compressStream).show();
                         let isComplete = i === this.signaturePadEl.length - 1 ? true : false;
                         this.$parent.submitSign(this.post.markList[i], compressStream, this.post.isNeedHand, isComplete);
@@ -139,6 +137,8 @@
             signComplete () {
                 this.resetBoard(true);
                 this.idx = 0;
+                this.signaturePad = [];
+                this.signaturePadEl = [];
                 $(this.$refs.paintBoard).animate({
                     left: -this.idx * this.screenWidth + 'px'
                 })

@@ -103,7 +103,7 @@ export default {
             // sessionStorage.setItem('downServer', data.downServer);
             // sessionStorage.setItem('userInfo', data.userInfo);
         },
-        goAuthTypes(type) {console.log(type)
+        goAuthTypes(type) {
             if(!type || !this.configMap[type]) {
                 return;
             }
@@ -174,7 +174,6 @@ export default {
                     if(res.data && res.data.isComplete == 1) {
                         this.totalInfo.authTaskId = res.data.id;
                         sessionStorage.setItem('totalInfo', JSON.stringify(this.totalInfo));
-                        console.log(typesArr)
                         this.$router.push({
                             name: tool.getNextAuthTypes()
                         });
@@ -184,7 +183,6 @@ export default {
                             name: 'contract'
                         })
                     }
-                    console.log(res);
                 }).catch(error => {
                     console.log(error);
                 })

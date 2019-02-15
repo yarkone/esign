@@ -121,6 +121,10 @@ axios.interceptors.response.use(
   },
   error => {
     handleResponseLoading();
+    Vue.$vux.toast.show({
+        type: 'text',
+        text: '请求失败'
+    })
     return Promise.reject(error)
   }
 )

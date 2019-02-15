@@ -5,7 +5,7 @@ import bankCardAuth from '@/pages/bankCardAuth'
 import mobileAuth from '@/pages/mobileAuth'
 import bodyAuth from '@/pages/bodyAuth'
 import bodyAuthResult from '@/pages/bodyAuthResult'
-import realPhotoAuth from '@/pages/realPhotoAuth'
+import faceContrastAuth from '@/pages/faceContrastAuth'
 import contract from '@/pages/contract'
 
 Router.prototype.goBack = function () {
@@ -73,9 +73,9 @@ export default new Router({
 			isFirstEnter: false //是否第一次进入页面
 		}
 	}, {
-		path: '/realPhotoAuth',
-		name: 'realPhotoAuth',
-		component: realPhotoAuth,
+		path: '/faceContrastAuth',
+		name: 'faceContrastAuth',
+		component: faceContrastAuth,
 		meta: {
 			title: '人脸对比',
 			keepAlive: false, //此组件需要被缓存
