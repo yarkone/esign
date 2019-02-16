@@ -1,8 +1,8 @@
 <template>
 	<div id="app">
 		<x-header
-            :left-options="{backText: '', showBack: showBack, preventGoBack: true}"
-            @on-click-back="goBack"
+            :left-options="{backText: '', showBack: showBackIcon, preventGoBack: true}"
+            @on-click-back="backConfirm"
             class="vux-1px-b"
             style="background-color: #fff;width:100%;position:fixed;left:0;top:0;z-index:100;"
         >{{title}}</x-header>
@@ -26,11 +26,11 @@
 			return {
 				totalInfo: null,
 				title: '电子签约',
-				showBack: true,
+				showBackIcon: true,
 				transitionName: 'slide-left'
 			}
 		},
-		beforeRouteUpdate (to, from, next) {
+		beforeRouteUpdate (to, from, next) {console.log('App.vue.  beforeRouteUpdate');
 			let isBack = this.$router.isBack
 			if (isBack) {
 				this.transitionName = 'slide-right'
@@ -43,7 +43,7 @@
 		created () {
 			//首页不需要返回按钮
 			if(this.$route.name === '' || this.$route.name === 'index') {
-				this.showBack = false;
+				this.showBackIcon = false;
 			}
 			//每个页面的header的title
 			this.title = this.$route.meta.title;
@@ -52,7 +52,7 @@
 			haha() {
 				
 			},
-			goBack() {
+			backConfirm() {
 				let that = this;
 				this.$vux.confirm.show({
 					title: '提示',
@@ -60,14 +60,24 @@
 					onCancel () {},
 					onConfirm () {
 						//Todo  跳转到sdk对接方页面
+						that.$router.goBack();
 					}
 				})
 			}
 		},
 		watch: {
 			$route(to, from){
+				// let isBack = this.$router.isBack
+				// console.log(isBack)
+				// if (isBack) {
+				// 	this.transitionName = 'slide-right'
+				// } else {
+				// 	this.transitionName = 'slide-left'
+				// }
+				// this.$router.isBack = false
+
 				if(to.name !== '' && to.name !== 'index') {
-					this.showBack = true;
+					this.showBackIcon = true;
 				}
 				this.title = to.meta.title;
 			}

@@ -2,7 +2,7 @@
  * @Author: yarkone 
  * @Date: 2018-11-05 10:22:51 
  * @Last Modified by: yarkone
- * @Last Modified time: 2019-02-13 11:25:35
+ * @Last Modified time: 2019-02-16 13:28:54
  */
 import Vue from 'vue'
 
@@ -62,8 +62,8 @@ export const tool = {
 				path: 'bodyAuth',
 				title: '活体检测'
 			},
-			realPhotoAuth: {
-				path: 'realPhotoAuth',
+			faceContrastAuth: {
+				path: 'faceContrastAuth',
 				title: '人脸对比'
 			}
 		};

@@ -54,13 +54,12 @@
         },
         methods: {
             next () {
-                
                 if(this.isMounted && !this.isPass) {//失败返回
                     that.$router.goBack();
                 } else {//成功跳转下一任务节点
                     tool.resetTotalInfo();
                     this.$router.push({
-                        name: tool.getNextAuthTypes()
+                        name: tool.getNextAuthTypes(),
                     });
                 }
             }

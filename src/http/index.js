@@ -44,9 +44,9 @@ axios.interceptors.request.use(
     // const token = getCookie('名称');注意使用的时候需要引入cookie方法，推荐js-cookie
     if(config.method === 'post') {
       if(config['post-type'] === 'form-data') {
-        config.headers = {
-            'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'
-        }
+        // config.headers = {
+        //     'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'
+        // }
       } else {
         config.data = JSON.stringify(config.data);
         config.headers = {
@@ -116,6 +116,7 @@ axios.interceptors.response.use(
             title: '提示',
             content: data.msg || '系统异常'
         })
+        return Promise.reject(data);
     }
     return data;
   },

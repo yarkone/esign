@@ -51,7 +51,30 @@ export default {
             config: 'bankCardAuth,mobileAuth,bodyAuth,realPhotoAuth'
         }
     },
+    beforeRouteUpdate (to, from, next) {console.log('index.vue.  beforeRouteUpdate');
+        let isBack = this.$router.isBack
+        if (isBack) {
+            this.transitionName = 'slide-right'
+            this.backConfirm();
+        } else {
+            this.transitionName = 'slide-left'
+        }
+        this.$router.isBack = false
+        next()
+    },
     methods: {
+        backConfirm() {
+            let that = this;
+            this.$vux.confirm.show({
+                title: '提示',
+                content: '您当前正在进行电子签约，请确定，是否退出？',
+                onCancel () {},
+                onConfirm () {
+                    //Todo  跳转到sdk对接方页面
+                    that.$router.goBack();
+                }
+            })
+        },
         start() {
             let urlParams = null;
             // if(tool.getTotalInfo('totalInfo')) {
@@ -79,18 +102,6 @@ export default {
             }).catch(error => {
                 console.log(error);
             })
-        },
-        goBack() {
-            let that = this;
-            this.$vux.confirm.show({
-                title: '提示',
-                content: '您当前正在进行电子签约，请确定，是否退出？',
-                onCancel () {},
-                onConfirm () {
-                    that.$router.goBack();
-                }
-            })
-            
         },
         setSession (data) {
             this.totalInfo = Object.assign(this.totalInfo, data);
