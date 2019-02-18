@@ -1289,6 +1289,16 @@ var PDFViewerApplication = {
       _this5.metadata = metadata;
       _this5.contentDispositionFilename = contentDispositionFilename;
       console.log('PDF ' + pdfDocument.fingerprint + ' [' + info.PDFFormatVersion + ' ' + (info.Producer || '-').trim() + ' / ' + (info.Creator || '-').trim() + ']' + ' (PDF.js: ' + (_pdfjsLib.version || '-') + (_app_options.AppOptions.get('enableWebGL') ? ' [WebGL]' : '') + ')');
+
+      //设置iframe高度
+      var mh = Math.max(document.documentElement.clientHeight, document.body.scrollHeight);
+      var host = unescape(window.location.search.substr(3));
+      console.log(mh, host);
+      // $('iframe').remove();
+      // setTimeout(function() {
+      //     $('body').append('<iframe style="display:none;" src="' + host + '?h=' + mh + '"></iframe>');	
+      // }, 0);
+
       var pdfTitle = void 0;
       if (metadata && metadata.has('dc:title')) {
         var title = metadata.get('dc:title');

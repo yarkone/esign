@@ -31,6 +31,27 @@
 
             }
         },
+        beforeRouteLeave (to, from, next) {
+            let that = this;
+            let isBack = this.$router.isBack
+            console.log(isBack)
+            if (isBack) {
+            	this.$vux.confirm.show({
+                    title: '提示',
+                    content: '您当前正在进行电子签约，请确定，是否退出？',
+                    onCancel () {
+                        next(false);
+                    },
+                    onConfirm () {
+                        //Todo  跳转到sdk对接方页面
+                        that.$router.goBack();
+                        next();
+                    }
+                })
+            } else {
+                next();
+            }
+        },
         mounted() {
             // alert('浏览器版本：' + window.navigator.userAgent)
             // var params = {

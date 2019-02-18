@@ -95,6 +95,13 @@ export default {
             };
 
             this.$post('service', params).then(res => {
+                //未配置任务验证项
+                // if(res.data.contractInfo && !res.data.contractInfo.authTypes) {
+                //     return this.$vux.alert.show({
+                //         title: '提示',
+                //         content: '当前环节未配置验证项！'
+                //     })
+                // }
                 this.setSession(res.data);
                 this.signList(() => {
                     this.checkAuthTypes();
@@ -104,25 +111,15 @@ export default {
             })
         },
         setSession (data) {
-            this.totalInfo = Object.assign(this.totalInfo, data);
-
-            // this.contractInfo = data && data.contractInfo;
-            // this.downServer = JSON.parse(data && data.downServer);
-            // this.userInfo = JSON.parse(data && data.userInfo);
-
-            // sessionStorage.setItem('contractInfo', JSON.stringify(data.contractInfo));
-            // sessionStorage.setItem('downServer', data.downServer);
-            // sessionStorage.setItem('userInfo', data.userInfo);
-        },
-        goAuthTypes(type) {
-            if(!type || !this.configMap[type]) {
-                return;
+            if(data.contractInfo && data.contractInfo.authTypes) {
+                data.authTypes = data.contractInfo.authTypes.split(',');
+                data.authTypes.unshift('');
+                data.authTypes.push('bodyAuthResult');
+                data.authTypes.push('contract');
+            } else {
+                data.authTypes = ['', 'bodyAuthResult', 'contract'];
             }
-            this.$router.push({
-                name: this.configMap[type].path,
-                // query: this.totalInfo.urlParams
-            })
-            this.title = this.configMap[type].title
+            this.totalInfo = Object.assign(this.totalInfo, data);
         },
         signList(cb) {
             let params = {
@@ -241,6 +238,8 @@ export default {
         //     name: 'contract'
         // })
         // this.title = '客户签名'
+
+        // this.start();
     }
 
 }

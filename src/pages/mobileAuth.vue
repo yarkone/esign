@@ -1,5 +1,5 @@
 <template>
-    <div class="padding2020 mobileAuth">
+    <div class="padding2020 mobileAuth mt20">
         <div class="white-box" v-show="!showCodePanel">
             <div class="title" style="text-align: center;">
                 {{totalInfo && totalInfo.userInfo && totalInfo.userInfo.name}}手机号码

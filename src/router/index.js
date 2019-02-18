@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import { tool } from '../mixins/tool'
 import index from '@/pages/index'
 import bankCardAuth from '@/pages/bankCardAuth'
 import mobileAuth from '@/pages/mobileAuth'
@@ -15,7 +16,11 @@ Router.prototype.goBack = function () {
 
 Vue.use(Router)
 
-export default new Router({
+const goBack = () => {
+	window.history.go(-1);
+}
+
+const router = new Router({
 	mode: 'history',
     scrollBehavior (to, from, savedPosition) {
         if (savedPosition) {
@@ -94,3 +99,30 @@ export default new Router({
 		}
 	}]
 })
+
+router.beforeEach((to, from, next) => {
+	let that = this;
+	const totalInfo = tool.getTotalInfo() || {};
+	const routeDeep = totalInfo.authTypes || [''];
+	const toDepth = routeDeep.indexOf(to.name);
+	const fromDepth = routeDeep.indexOf(from.name);
+	let isBack = toDepth < fromDepth;
+	if (isBack) {
+		Vue.$vux.confirm.show({
+			title: '提示',
+			content: '您当前正在进行电子签约，请确定，是否退出？',
+			onCancel () {
+				next(false);
+			},
+			onConfirm () {
+				//Todo  跳转到sdk对接方页面
+				goBack();
+				next();
+			}
+		})
+	} else {
+		next();
+	}
+})
+
+export default router

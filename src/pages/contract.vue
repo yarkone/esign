@@ -1,12 +1,15 @@
 <template>
     <div class="contract">
-        <div class="title title-contract-count" style="">
-            本次签约，需要签署<span class="color-fail">{{pdfInfo.total}}</span>份协议，已签署<span class="color-fail">{{pdfInfo.signed}}</span>份
+        <div class="contract-wrap" style="top: 46px;" ref="contractWrap">
+            <div class="title title-contract-count" ref="titleContractCount">
+                本次签约，需要签署<span class="color-fail">{{pdfInfo.total}}</span>份协议，已签署<span class="color-fail">{{pdfInfo.signed}}</span>份
+            </div>
+            <div class="title title-pdf-name" ref="titlePdfName">{{pdfInfo.notSignList.length ? pdfInfo.notSignList[currentIndex === pdfInfo.notSignList.length ? currentIndex - 1 : currentIndex].tempName : ''}}</div>
+            <div class="pdf" ref="pdfPanel">
+                <iframe :src="iframe_src" frameborder="0"></iframe>
+            </div>
         </div>
-        <div class="title title-pdf-name">{{pdfInfo.notSignList.length ? pdfInfo.notSignList[currentIndex === pdfInfo.notSignList.length ? currentIndex - 1 : currentIndex].tempName : ''}}</div>
-        <div class="pdf" ref="pdfPanel">
-            <iframe :src="iframe_src" frameborder="0"></iframe>
-        </div>
+        
         <div class="submit" @click="submit">{{submitText}}</div>
         <paint :post="post" ref="paint"></paint>
         <paint :post="post2" ref="paint2"></paint>
@@ -75,6 +78,7 @@
                 console.log(res);
                 this.pdfInfo = Object.assign(this.pdfInfo, res.data);
                 let pdf_url = this.pdfInfo.notSignList.length ? this.$getApi(this.pdfInfo.notSignList[this.currentIndex].contractPdfUrl, 'img') : '';
+                this.setIframeHeight();
                 this.loadPdf(pdf_url);
                 this.getSignInfo(() => {
                     this.initPaint();
@@ -84,6 +88,12 @@
             })
         },
         methods: {
+            setIframeHeight() {
+                let height = $(this.$refs.contractWrap).height() - $(this.$refs.titleContractCount).height() - $(this.$refs.titlePdfName).height();
+
+                $(this.$refs.pdfPanel).height(height);
+            },
+            
             loadPdf(pdf_url) {
                 let file = this.$getApi('convert/outStreamFromUrl?url=' + pdf_url, true);
                 console.log(file)
@@ -264,34 +274,44 @@
 
     .contract {
         height: 100%;
-        .title {
-            // position: fixed;
-            height: 100px;
-            line-height: 100px;
-            font-size: 28px;
-            &.title-contract-count {
-                padding-left: 20px;
-                color: #7c7c7c;
-                background-color: #fff;
-                .color-fail {
-                    font-size: 40px;
+        padding-top: 185px;
+        .contract-wrap {
+            position: absolute;
+            bottom: 100px;
+            width: 100%;
+            .title {
+                height: 100px;
+                line-height: 100px;
+                font-size: 28px;
+                &.title-contract-count {
+                    padding-left: 20px;
+                    color: #7c7c7c;
+                    background-color: #fff;
+                    .color-fail {
+                        font-size: 40px;
+                    }
+                }
+                &.title-pdf-name {
+                    top: 100px;
+                    height: 85px;
+                    line-height: 85px;
+                    text-align: center;
+                    color: #fff;
+                    background-color: #333;
                 }
             }
-            &.title-pdf-name {
-                height: 85px;
-                line-height: 85px;
-                text-align: center;
-                color: #fff;
-                background-color: #333;
-            }
+        }
+        
+        .pdf {
+            overflow: scroll;
         }
         .submit {
-            position: fixed;
+            position: absolute;
             left: 0;
             right: 0;
             bottom: 0;
-            height: 120px;
-            line-height: 120px;
+            height: 100px;
+            line-height: 100px;
             font-size: 30px;
             background-color: @mainColor;
             color: #fff;

@@ -1,5 +1,5 @@
 <template>
-    <div class="padding2020 bankCardAuth">
+    <div class="padding2020 bankCardAuth mt20">
         <div class="white-box">
             <div class="result-panel" v-show="isMounted && isPass">
                 <i class="iconfont color-success i-success">&#xe784;</i>

@@ -2,7 +2,7 @@
  * @Author: yarkone 
  * @Date: 2018-11-05 10:22:51 
  * @Last Modified by: yarkone
- * @Last Modified time: 2019-02-16 13:28:54
+ * @Last Modified time: 2019-02-18 14:31:32
  */
 import Vue from 'vue'
 
@@ -11,7 +11,13 @@ export const tool = {
 	 * 获取电子签约需要的总信息
 	 */
 	getTotalInfo: () => {
-		return JSON.parse(sessionStorage.getItem('totalInfo'));
+		let totalInfo;
+		try {
+			totalInfo = JSON.parse(sessionStorage.getItem('totalInfo'));
+		} catch (e) {
+			totalInfo = null;
+		}
+		return totalInfo;
 	},
 	/**
 	 * 获取地址
