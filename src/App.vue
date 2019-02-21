@@ -4,7 +4,7 @@
             :left-options="{backText: '', showBack: showBackIcon, preventGoBack: true}"
             @on-click-back="backConfirm"
             class="vux-1px-b"
-            style="background-color: #fff;width:100%;position:absolute;left:0;top:0;z-index:100;"
+            style="background-color: #fff;width:100%;position:absolute;left:0;top:0;z-index:1;"
         >{{title}}</x-header>
         <div class="container" ref="container">
             <transition :name="transitionName">
@@ -61,7 +61,7 @@
 		},
 		mounted () {
 			this.$nextTick(() => {
-				this.BScroll = new BScroll(this.$refs.container)
+				this.BScroll = new BScroll(this.$refs.container, { mouseWheel: true, click: true, tap: true })
 			});
 		},
 		methods: {
@@ -101,8 +101,16 @@
 	@import '~vux/src/styles/reset.less';
 	@import '~vux/src/styles/1px.less';
 
-	body {
+	html, body {
+		height: 100%;
 		background-color: #eeeeee;
+		
+		#app {
+			height: 100%;
+		}
+		.weui-mask_transparent {
+			background: rgba(0, 0, 0, 0.4);
+		}
 		.container {
 			height: 100%;
 			overflow: scroll;

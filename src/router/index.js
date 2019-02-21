@@ -10,8 +10,7 @@ import faceContrastAuth from '@/pages/faceContrastAuth'
 import contract from '@/pages/contract'
 
 Router.prototype.goBack = function () {
-	this.isBack = true
-	window.history.go(-1)
+	window.location.href = 'http://hrfax.imwork.net:18887/bank/static/html/sdkCustomer.html';
 }
 
 Vue.use(Router)
@@ -117,7 +116,7 @@ router.beforeEach((to, from, next) => {
 			onConfirm () {
 				//Todo  跳转到sdk对接方页面
 				goBack();
-				next();
+				next(false);
 			}
 		})
 	} else {

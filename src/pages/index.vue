@@ -1,6 +1,6 @@
 <template>
     <div class="wrap">
-        <div class="layout layout-img">
+        <!-- <div class="layout layout-img">
             <div class="img-panel">
                 <img class="img" src="../assets/img/start_male.png" alt="">
                 <img class="img_border" src="../assets/img/block.png" alt="">
@@ -10,7 +10,7 @@
             <div class="submit-panel">
                 <x-button type="warn" @click.native="start">开始电子签约</x-button>
             </div>
-        </div>
+        </div> -->
     </div>
 </template>
 
@@ -50,17 +50,6 @@ export default {
             urlParams: null,
             config: 'bankCardAuth,mobileAuth,bodyAuth,realPhotoAuth'
         }
-    },
-    beforeRouteUpdate (to, from, next) {console.log('index.vue.  beforeRouteUpdate');
-        let isBack = this.$router.isBack
-        if (isBack) {
-            this.transitionName = 'slide-right'
-            this.backConfirm();
-        } else {
-            this.transitionName = 'slide-left'
-        }
-        this.$router.isBack = false
-        next()
     },
     methods: {
         backConfirm() {
@@ -114,10 +103,12 @@ export default {
             if(data.contractInfo && data.contractInfo.authTypes) {
                 data.authTypes = data.contractInfo.authTypes.split(',');
                 data.authTypes.unshift('');
-                data.authTypes.push('bodyAuthResult');
                 data.authTypes.push('contract');
+                if(data.authTypes.indexOf('bodyAuth') != -1) {
+                    data.authTypes.splice(data.authTypes.indexOf('bodyAuth') + 1, 0, 'bodyAuth');
+                }
             } else {
-                data.authTypes = ['', 'bodyAuthResult', 'contract'];
+                data.authTypes = ['', 'contract'];
             }
             this.totalInfo = Object.assign(this.totalInfo, data);
         },
@@ -239,13 +230,13 @@ export default {
         // })
         // this.title = '客户签名'
 
-        // this.start();
+        this.start();
     }
 
 }
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
     @import '../style/defined.less';
     @import '../style/iconfont.less';
     @import '../style/mixin.less';

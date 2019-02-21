@@ -2,8 +2,8 @@
     <div class="faceContrastAuth">
         <div class="layout">
             <div class="img-panel">
-                <img :src="faceImg" ref="faceImg" alt="">
-                <img src="../assets/img/block.png" alt="">
+                <img class="img1" :src="faceImg" ref="faceImg" alt="">
+                <img class="img2" src="../assets/img/block.png" alt="">
             </div>
         </div>
         <div class="layout">
@@ -42,6 +42,7 @@
                 const formData = new FormData();
                 formData.append('assurerNo', this.totalInfo.urlParams.assurerNo);
                 formData.append('orderNo', this.totalInfo.userInfo.orderNo);
+                formData.append('h5mark', true);
                 formData.append('file', file);
 
                 this.$post('upload/fileUpload', formData, {'post-type' : 'form-data'}).then((res) => {
@@ -81,13 +82,23 @@
 
                 this.$post('compare/personImageCompareSign', params).then(res => {
                     if(res.data && res.data.busiCode == 0) {
-                        this.isPass = true;
-                        tool.resetTotalInfo();
-                        this.$router.push({
-                            name: tool.getNextAuthTypes(),
-                        });
+                        let that = this;
+                        this.$vux.toast.show({
+                            text: '对比成功',
+                            onHide() {
+                                that.isPass = true;
+                                tool.resetTotalInfo();
+                                that.$router.push({
+                                    name: tool.getNextAuthTypes(),
+                                });
+                            },
+                        })
                     } else {
                         this.isPass = false;
+                        this.$vux.alert.show({
+                            title: '提示',
+                            content: res.data.busiMsg || '人脸比对失败'
+                        })
                     }
                 }).catch(error => {
                     this.isPass = false;
@@ -204,10 +215,16 @@
             width: 430px;
             height: 430px;
             position: relative;
-            img {
+            .img1 {
+                position: absolute;
+                height: 100%;
+                left: 50%;
+                transform: translate(-50%, 0);
+            }
+            .img2 {
+                position: absolute;
                 width: 100%;
                 height: 100%;
-                position: absolute;
                 left: 50%;
                 margin-left: -215px;
             }

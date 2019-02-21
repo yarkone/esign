@@ -6,7 +6,7 @@
             </div>
             <div class="title title-pdf-name" ref="titlePdfName">{{pdfInfo.notSignList.length ? pdfInfo.notSignList[currentIndex === pdfInfo.notSignList.length ? currentIndex - 1 : currentIndex].tempName : ''}}</div>
             <div class="pdf" ref="pdfPanel">
-                <iframe :src="iframe_src" frameborder="0"></iframe>
+                <iframe id="frm" ref="frm" :src="iframe_src" frameborder="0" scrolling="0"></iframe>
             </div>
         </div>
         
@@ -21,12 +21,10 @@
     import paint from '../components/paint'
     import { tool } from '../mixins/tool'
     import axios from 'axios'
+    // import PDFJS from 'pdfjs-dist'
     // import pdf from 'vue-pdf'
     // import pdfurls from '../assets/temp.pdf'
     // import pdfshower from 'vue-pdf-shower'
-    // import pdfjs from 'pdfjs'
-
-    import PDFJS from 'pdfjs-dist'
 
     export default {
         name: 'contract',
@@ -75,8 +73,10 @@
             }
 
             this.$post('signUser/readPdf', params).then(res => {
-                console.log(res);
                 this.pdfInfo = Object.assign(this.pdfInfo, res.data);
+                if(res.data.total === res.data.signed) {
+                    return this.showEndTips();
+                }
                 let pdf_url = this.pdfInfo.notSignList.length ? this.$getApi(this.pdfInfo.notSignList[this.currentIndex].contractPdfUrl, 'img') : '';
                 this.setIframeHeight();
                 this.loadPdf(pdf_url);
@@ -90,26 +90,34 @@
         methods: {
             setIframeHeight() {
                 let height = $(this.$refs.contractWrap).height() - $(this.$refs.titleContractCount).height() - $(this.$refs.titlePdfName).height();
-
-                $(this.$refs.pdfPanel).height(height);
+                this.$refs.pdfPanel.style.height = this.$refs.frm.style.height = height + 'px';
             },
             
             loadPdf(pdf_url) {
                 let file = this.$getApi('convert/outStreamFromUrl?url=' + pdf_url, true);
-                console.log(file)
                 this.$nextTick(() => {
+                    // this.iframe_src = 'https://www.baidu.com';
+                    // this.$refs.frm.style.height = '1000px';
                     this.iframe_src = '../../static/pdfjs/web/viewer.html?file=' + encodeURIComponent(file);
                 });
             },
 
-            submit () {console.log(this.currentIndex)
+            showEndTips() {
+                let that = this;
+                this.$vux.alert.show({
+                    title: '提示',
+                    content: `本次签约，需要签署${this.pdfInfo.total}份协议，已签署${this.pdfInfo.total}份`,
+                    buttonText: '结束本次签约',
+                    onHide () {
+                        that.$router.goBack();
+                    },
+                })
+            },
+
+            submit () {
                 //最后一个合同签署完成直接提示“签署完成”
                 if (this.currentIndex === this.pdfInfo.notSignList.length) {
-                    return this.$vux.alert.show({
-                                title: '提示',
-                                content: `本次签约，需要签署${this.pdfInfo.notSignList.length}份协议，已签署${this.pdfInfo.notSignList.length}份`,
-                                buttonText: '结束本次签约',
-                            })
+                    return this.showEndTips();
                 }
 
                 //点击底部按钮时，除了第一个合同其他合同需加载对应合同
@@ -140,7 +148,6 @@
                     assurerNo: this.totalInfo.urlParams.assurerNo
                 }
                 this.$post('service', params).then(res => {
-                    console.log(res);
                     
                 }).catch(error => {
                     console.log(error);
@@ -153,7 +160,6 @@
                     contractBatchNo: this.pdfInfo.notSignList.length && this.pdfInfo.notSignList[this.currentIndex].econtractBatchno
                 }
                 this.$post('service', params).then(res => {
-                    console.log(res);
                     this.post = Object.assign(this.post, res.data);
                     if(cb && typeof cb === 'function') cb();
                 }).catch(error => {
@@ -218,10 +224,8 @@
                             jsonParam: that.totalInfo.contractInfo.contracts,
                             assurerNo: that.totalInfo.urlParams.assurerNo,
                         }
-                        console.log(data);
                         that.$post('service', data).then(res => {
                             that.$refs.paint2.signComplete();
-                            console.log(res);
                             that.$post('service', {
                                 serviceId: 'U004',
                                 orderNo: that.totalInfo.userInfo.bankOrderNo,
@@ -231,7 +235,6 @@
                                 econtractBatchNo: that.pdfInfo.notSignList.length ? that.pdfInfo.notSignList[that.currentIndex].econtractBatchno : '',
                                 assurerNo: that.totalInfo.urlParams.assurerNo,
                             }).then(res => {
-                                console.log(res);
                                 that.pdfInfo.signed++;
                                 that.currentIndex++;
                                 that.base64Files = {};
@@ -319,7 +322,7 @@
         }
         iframe {
             width: 100%;
-            height: 1000px;
+            // height: 1000px;
         }
     }
 </style>

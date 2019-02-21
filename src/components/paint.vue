@@ -1,6 +1,5 @@
 <template>
     <div class="mask" v-show="post.isShow">
-        <img alt="" class="signed-img" id="signImg">
         <div class="paint-panel" ref="paintPanel">
             <div class="paint-content-hand" v-show="post.isNeedHand">{{post.contentHand || ''}}</div>
             <div class="paint-title" ref="paintTitle">{{post.isNeedHand ? '手绘摘抄内容' : '手绘签名'}}</div>
@@ -47,17 +46,12 @@
             }
 		},
 		mounted () {
-
             this.removeBlanks();
-            // this.initBoard();
-            console.log()
-            // console.log(this.signaturePadEl.jSignature('getData', 'native').length);//判断js画布是否空白
         },
         methods: {
             initBoard () {
                 this.screenWidth = $(window).width();
                 this.canvasHeight = $(this.$refs.paintPanel).outerHeight() - $(this.$refs.paintTitle).outerHeight() - $(this.$refs.paintSubmit).outerHeight();
-                console.log(this.canvasHeight);
                 
                 for(let i = 0; i < this.post.markList.length; i++) {
                     this.$nextTick(() => {
@@ -272,7 +266,7 @@
                     cropBottom = scanY(false),
                     cropLeft = scanX(true),
                     cropRight = scanX(false);
-                    console.log(cropTop, cropBottom, cropLeft, cropRight);
+                    // console.log(cropTop, cropBottom, cropLeft, cropRight);
                     var relevantData = this._ctx.getImageData(cropLeft, cropTop, cropRight-cropLeft, cropBottom-cropTop);
                     // this._ctx.canvas.width = cropRight-cropLeft;
                     // this._ctx.canvas.height = cropBottom-cropTop;
@@ -302,7 +296,7 @@
         right: 0;
         bottom: 0;
         background: rgba(0, 0, 0, 0.4);
-        z-index: 999;
+        z-index: 1;
         .signed-img {
             position: absolute;
             bottom: 670px;

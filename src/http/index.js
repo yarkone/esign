@@ -10,8 +10,10 @@ if(process.env.NODE_ENV == 'development') {
     _wind_host = 'http://hrfax.imwork.net:18887/';
     _img_host = 'http://hrfax.imwork.net:10082';
 } else {
-    _base_host = 'http://carloan.hrfax.cn/api';
-    _img_host = 'http://carloan.hrfax.cn/api/img/';
+    _base_host = 'http://hrfax.imwork.net:16161/';
+    _estage_host = 'http://hrfax.imwork.net:18887/api/';
+    _wind_host = 'http://hrfax.imwork.net:18887/';
+    _img_host = 'http://hrfax.imwork.net:10082';
 }
 
 const startLoading = () => {
