@@ -21,9 +21,9 @@
                     <p>光线主暗</p>
                 </div>
             </div>
-            <!-- <div class="submit-panel">
-                <x-button type="warn"  @click.native="next">{{nextText}}</x-button>
-            </div> -->
+            <div class="submit-panel">
+                <x-button type="warn"  @click.native="next(true)">{{nextText}}</x-button>
+            </div>
         </div>
     </div>
 </template>
@@ -102,20 +102,25 @@
                     content: msg
                 })
             },
-            next () {
+            next (isHand) {
+                let that = this;
                 if(this.nextText === '重新认证') {
-                    this.$vux.toast.show({
-                        text: '检测失败',
-                        type: 'cancel',
-                        onHide() {
-                            this.$router.push({
-                                name: 'bodyAuth'
-                            })
-                            
-                        },
-                    })
+                    if(isHand) {
+                        that.$router.push({
+                            name: 'bodyAuth'
+                        })
+                    } else {
+                        this.$vux.toast.show({
+                            text: '检测失败',
+                            type: 'cancel',
+                            onHide() {
+                                that.$router.push({
+                                    name: 'bodyAuth'
+                                })
+                            },
+                        })
+                    }                    
                 } else {
-                    let that = this;
                     this.$vux.toast.show({
                         text: '检测成功',
                         onHide() {
