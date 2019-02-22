@@ -35,13 +35,14 @@ const handleResponseLoading = () => {
 
 // axios.defaults.timeout = 5000;
 axios.defaults.baseURL = _base_host;
+axios.defaults.global = true;//类似ajax，config.global设置初始值，代表全局生效
 
 //http request 拦截器
 axios.interceptors.request.use(
   config => {
-
+    console.log(config)
     //loading
-    handleRequestLoading(config.hideLoading);
+    if(config.global) handleRequestLoading(config.hideLoading);
 
     // const token = getCookie('名称');注意使用的时候需要引入cookie方法，推荐js-cookie
     if(config.method === 'post') {

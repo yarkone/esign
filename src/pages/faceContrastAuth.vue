@@ -87,7 +87,7 @@
                             text: '对比成功',
                             onHide() {
                                 that.isPass = true;
-                                tool.resetTotalInfo();
+                                tool.resetTotalInfo('faceContrastAuth');
                                 that.$router.push({
                                     name: tool.getNextAuthTypes(),
                                 });

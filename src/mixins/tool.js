@@ -2,7 +2,7 @@
  * @Author: yarkone 
  * @Date: 2018-11-05 10:22:51 
  * @Last Modified by: yarkone
- * @Last Modified time: 2019-02-18 14:31:32
+ * @Last Modified time: 2019-02-22 10:57:07
  */
 import Vue from 'vue'
 
@@ -28,8 +28,9 @@ export const tool = {
 	},
 	/**
 	 * 剔除当前完成的任务，并存入sessionStorage
+	 * targetAuth  {string}  要剔除的任务名称
 	 */
-	resetTotalInfo: () => {
+	resetTotalInfo: (targetAuth) => {
 		let totalInfo;
 		try {
 			totalInfo = JSON.parse(sessionStorage.getItem('totalInfo'));
@@ -39,7 +40,7 @@ export const tool = {
 		let authTypes = totalInfo.contractInfo ? totalInfo.contractInfo.authTypes : '';
 		if(authTypes) {
 			let arr = authTypes.split(',');
-			arr.shift();
+			arr.splice(arr.indexOf(targetAuth), 1);
 			totalInfo.contractInfo.authTypes = arr.join(',');
 		}
 		sessionStorage.setItem('totalInfo', JSON.stringify(totalInfo));

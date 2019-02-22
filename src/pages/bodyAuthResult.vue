@@ -6,7 +6,7 @@
                 <img class="img2"  src="../assets/img/block.png" alt="">
             </div>
         </div>
-        <div class="layout" v-show="nextText === '重新认证' ? true : false">
+        <div class="layout" v-show="isPass ? false : true">
             <div class="fail-panel">
                 <div class="fail-item">
                     <img class="img" src="../assets/img/img-1@2x.png" alt="">
@@ -40,12 +40,14 @@
         data() { 
             return {
                 totalInfo: null,
-                nextText: '下一步',
+                isPass: true,//活体检测是否通过
+                nextText: '重新认证',//底部按钮显示文字
             }
         },
         mounted() {
             this.totalInfo = tool.getTotalInfo('totalInfo');
             this.getBodyAuthResult(() => {
+                this.isPass = true;
                 this.next();
             });
         },
@@ -65,7 +67,7 @@
                                 if(res.data.images && res.data.images.image_best) {
                                     this.$refs.pic.src = res.data.images.image_best;
                                     if(cb && typeof cb === 'function') {
-                                        cb()
+                                        cb();
                                     }
                                 }
                             } else {
@@ -91,11 +93,12 @@
                         }
                     }
                 }).catch(error => {
-                    this.bodyAuthError('活体检测失败')
+                    this.bodyAuthError('活体检测失败');
                     console.log(error);
-                })
+                });
             },
             bodyAuthError(msg) {
+                this.isPass = false;
                 this.nextText = '重新认证';
                 this.$vux.alert.show({
                     title: '提示',
@@ -104,7 +107,18 @@
             },
             next (isHand) {
                 let that = this;
-                if(this.nextText === '重新认证') {
+                if(this.isPass) {
+                    if(isHand) {
+                        that.saveResult();
+                    } else {
+                        this.$vux.toast.show({
+                            text: '检测成功',
+                            onHide() {
+                                that.saveResult();
+                            },
+                        });
+                    }
+                } else {
                     if(isHand) {
                         that.$router.push({
                             name: 'bodyAuth'
@@ -119,14 +133,7 @@
                                 })
                             },
                         })
-                    }                    
-                } else {
-                    this.$vux.toast.show({
-                        text: '检测成功',
-                        onHide() {
-                            that.saveResult();
-                        },
-                    })
+                    }
                 }
             },
             saveResult() {
@@ -140,11 +147,11 @@
                     areaCode: this.totalInfo.userInfo.areaCode,
 
                     authTaskId: this.totalInfo.authTaskId,
-                    result: this.nextText === '重新认证' ? 0 : 1,
-                    msg: this.nextText === '重新认证' ? '认证失败' : '认证成功',
+                    result: this.isPass ? 0 : 1,
+                    msg: this.isPass ? '认证成功' : '认证失败',
                 }
                 this.$post('service', params).then(res => {
-                    tool.resetTotalInfo();
+                    tool.resetTotalInfo('bodyAuth');
                     this.$router.push({
                         name: tool.getNextAuthTypes(),
                     });

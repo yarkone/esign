@@ -10,13 +10,13 @@ import faceContrastAuth from '@/pages/faceContrastAuth'
 import contract from '@/pages/contract'
 
 Router.prototype.goBack = function () {
-	window.location.href = 'http://hrfax.imwork.net:18887/bank/static/html/sdkCustomer.html';
+	goBack();
 }
 
 Vue.use(Router)
 
 const goBack = () => {
-	window.history.go(-1);
+	window.location.href = 'http://hrfax.imwork.net:18887/bank/static/html/sdkCustomer.html';
 }
 
 const router = new Router({

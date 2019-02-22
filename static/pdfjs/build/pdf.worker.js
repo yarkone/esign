@@ -23176,7 +23176,7 @@ var WidgetAnnotation = function (_Annotation) {
     }
     data.readOnly = _this2.hasFieldFlag(_util.AnnotationFieldFlag.READONLY);
     if (data.fieldType === 'Sig') {
-      _this2.setFlags(_util.AnnotationFlag.HIDDEN);
+      // _this2.setFlags(_util.AnnotationFlag.HIDDEN);//注释掉这一行是因为，pdf有电子签章时，且是无效的签名。pdfjs直接不显示。但是实际情况下，需要显示。
     }
     return _this2;
   }

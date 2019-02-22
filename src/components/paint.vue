@@ -4,10 +4,11 @@
             <div class="paint-content-hand" v-show="post.isNeedHand">{{post.contentHand || ''}}</div>
             <div class="paint-title" ref="paintTitle">{{post.isNeedHand ? '手绘摘抄内容' : '手绘签名'}}</div>
             <div class="paint-board clearfix" ref="paintBoard" :style="{width: screenWidth * (post.markList && post.markList.length || 1) + 'px'}">
-                <div class="canvas-wrap" v-for="(item, index) in post.markList" :key="index">
-                    <x-icon @click="prev" type="ios-arrow-left" class="icon-left" size="30" v-show="post.isNeedHand && index !== 0"></x-icon>
+                <div class="canvas-wrap" :style="{width: screenWidth + 'px'}" v-for="(item, index) in post.markList" :key="index">
                     <canvas :width="screenWidth" :height="canvasHeight" class="canvas" ref="item"></canvas>
+                    <x-icon @click="prev" type="ios-arrow-left" class="icon-left" size="30" v-show="post.isNeedHand && index !== 0"></x-icon>
                     <x-icon @click="next" type="ios-arrow-right" class="icon-right" size="30" v-show="post.isNeedHand && index !== post.markList.length - 1"></x-icon>
+                    <div class="canvas-tips" v-if="post.isNeedHand">{{'（' + (index + 1) + '）请签署“' + (item ? item.substring(0, item.length - 1) : '') + '”'}}</div>
                 </div>
             </div>
             <div class="paint-submit" ref="paintSubmit">
@@ -331,6 +332,7 @@
                 bottom: 0;
                 background: #333333;
                 text-align: center;
+                z-index: 1;
                 .button {
                     display: inline-block;
                     margin-top: 20px;
@@ -356,12 +358,14 @@
                 .canvas-wrap {
                     float: left;
                     position: relative;
+                    height: 100%;
                     .icon-left {
                         position: absolute;
                         left: 38px;
                         top: 50%;
                         margin-top: -22px;
                         fill: #8a8a8a;
+                        z-index: 1;
                     }
                     .icon-right {
                         position: absolute;
@@ -369,6 +373,22 @@
                         top: 50%;
                         margin-top: -22px;
                         fill: #8a8a8a;
+                        z-index: 1;
+                    }
+                    .canvas-tips {
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        z-index: 0;
+                    }
+                    .canvas {
+                        position: absolute;
+                        top: 0;
+                        bottom: 0;
+                        left: 0;
+                        right: 0;
+                        z-index: 1;                        
                     }
                 }
             }

@@ -17,7 +17,7 @@
                 您正在使用手机尾号{{mobileSuffix(totalInfo && totalInfo.userInfo && totalInfo.userInfo.mobile)}}进行工行电子签约授权认证
             </div>
             <group>
-                <x-input class="weui-vcode" placeholder="请输入" v-model="value" type="number" keyboard="number" :max="6" style="border-bottom: 1px solid #cf000d;padding-right: 0;border-top: 1px solid #fff;">
+                <x-input class="weui-vcode" placeholder="请输入" v-model="value" keyboard="number" :max="6" style="border-bottom: 1px solid #cf000d;padding-right: 0;padding-bottom: 5px;border-top: 1px solid #fff;">
                     <span slot="right" class="slot-button vux-1px-l">
                         <span @click="sendCode" :class="isDisabled ? '' : 'color-main'" v-html="buttonText"></span>
                     </span>
@@ -136,7 +136,7 @@
 
                 this.$post('sms/validateMsg', params).then(res => {
                     console.log(res);
-                    tool.resetTotalInfo();
+                    tool.resetTotalInfo('mobileAuth');
                     this.$router.push({
                         name: tool.getNextAuthTypes()
                     });

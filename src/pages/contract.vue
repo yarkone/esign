@@ -21,6 +21,7 @@
     import paint from '../components/paint'
     import { tool } from '../mixins/tool'
     import axios from 'axios'
+import { setTimeout } from 'timers';
     // import PDFJS from 'pdfjs-dist'
     // import pdf from 'vue-pdf'
     // import pdfurls from '../assets/temp.pdf'

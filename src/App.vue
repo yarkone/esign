@@ -119,6 +119,7 @@
 			bottom: 0;
 			left: 0;
 			right: 0;
+			z-index: 1;
 			.child-view {
 				position: absolute;
 				width:100%;

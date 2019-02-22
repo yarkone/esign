@@ -106,6 +106,7 @@
             position: relative;
             img {
                 position: absolute;
+                width: 100%;
                 height: 100%;
                 left: 50%;
                 transform: translate(-50%, 0);
