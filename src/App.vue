@@ -1,16 +1,16 @@
 <template>
 	<div id="app">
+        <div class="container" ref="container" style="margin-top:46px;">
+            <transition :name="transitionName">
+                <router-view class="child-view" ></router-view>
+            </transition>
+        </div>
 		<x-header
             :left-options="{backText: '', showBack: showBackIcon, preventGoBack: true}"
             @on-click-back="backConfirm"
             class="vux-1px-b"
             style="background-color: #fff;width:100%;position:absolute;left:0;top:0;z-index:1;"
         >{{title}}</x-header>
-        <div class="container" ref="container">
-            <transition :name="transitionName">
-                <router-view class="child-view" style="padding-top:46px;"></router-view>
-            </transition>
-        </div>
 	</div>
 </template>
 
@@ -29,27 +29,9 @@
 				totalInfo: null,
 				title: '电子签约',
 				showBackIcon: true,
-				transitionName: 'slide-left'
+				transitionName: 'slide-left',
+				BScroll: null,
 			}
-		},
-		beforeRouteEnter (to, from, next) {console.log('App.vue.  beforeRouteEnter');
-			// 在渲染该组件的对应路由被 confirm 前调用
-			// 不！能！获取组件实例 `this`
-			// 因为当守卫执行前，组件实例还没被创建
-		},
-		beforeRouteUpdate (to, from, next) {console.log('App.vue.  beforeRouteUpdate');
-			let isBack = this.$router.isBack
-			if (isBack) {
-				this.transitionName = 'slide-right'
-			} else {
-				this.transitionName = 'slide-left'
-			}
-			this.$router.isBack = false
-			next()
-		},
-		beforeRouteLeave (to, from, next) {console.log('App.vue.  beforeRouteLeave');
-			// 导航离开该组件的对应路由时调用
-			// 可以访问组件实例 `this`
 		},
 		created () {
 			//首页不需要返回按钮
@@ -60,14 +42,9 @@
 			this.title = this.$route.meta.title;
 		},
 		mounted () {
-			this.$nextTick(() => {
-				this.BScroll = new BScroll(this.$refs.container, { mouseWheel: true, click: true, tap: true })
-			});
+			this._initBScroll();
 		},
 		methods: {
-			haha() {
-				
-			},
 			backConfirm() {
 				let that = this;
 				this.$vux.confirm.show({
@@ -79,11 +56,25 @@
 						that.$router.goBack();
 					}
 				})
-			}
+			},
+			_initBScroll() {
+				this.$nextTick(() => {
+					if(!this.BScroll) {
+						this.BScroll = new BScroll(this.$refs.container, { mouseWheel: true, click: true, tap: true });
+					} else {
+						this.BScroll.refresh();
+					}
+				});
+			},
+			_BScrollRefresh() {
+				if(this.BScroll) {
+					this.BScroll.refresh();
+				}
+			},
 		},
 		watch: {
 			$route(to, from){
-				const routeDeep = tool.getTotalInfo().authTypes || [''];
+				const routeDeep = tool.getTotalInfo().authTypesArr || [''];
 				const toDepth = routeDeep.indexOf(to.name)
 				const fromDepth = routeDeep.indexOf(from.name)
 				this.transitionName = toDepth > fromDepth ? 'slide-left' : 'slide-right'
@@ -104,7 +95,6 @@
 	html, body {
 		height: 100%;
 		background-color: #eeeeee;
-		
 		#app {
 			height: 100%;
 		}
@@ -112,7 +102,7 @@
 			background: rgba(0, 0, 0, 0.4);
 		}
 		.container {
-			height: 100%;
+			// height: 100%;
 			overflow: scroll;
 			position: absolute;
 			top: 0;

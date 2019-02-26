@@ -2,7 +2,7 @@
  * @Author: yarkone 
  * @Date: 2018-11-05 10:22:51 
  * @Last Modified by: yarkone
- * @Last Modified time: 2019-02-22 10:57:07
+ * @Last Modified time: 2019-02-25 19:37:38
  */
 import Vue from 'vue'
 
@@ -37,11 +37,11 @@ export const tool = {
 		} catch (e) {
 			totalInfo = null;
 		}
-		let authTypes = totalInfo.contractInfo ? totalInfo.contractInfo.authTypes : '';
+		let authTypes = totalInfo.authTypes || '';
 		if(authTypes) {
 			let arr = authTypes.split(',');
 			arr.splice(arr.indexOf(targetAuth), 1);
-			totalInfo.contractInfo.authTypes = arr.join(',');
+			totalInfo.authTypes = arr.join(',');
 		}
 		sessionStorage.setItem('totalInfo', JSON.stringify(totalInfo));
 	},
@@ -55,7 +55,7 @@ export const tool = {
 		} catch (e) {
 			totalInfo = null;
 		}
-		let authTypes = totalInfo.contractInfo ? totalInfo.contractInfo.authTypes : '';
+		let authTypes = totalInfo.authTypes || '';
 		let configMap = {
 			bankCardAuth: {
 				path: 'bankCardAuth',

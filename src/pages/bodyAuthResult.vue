@@ -207,7 +207,7 @@
         }
     }
     .img-description {
-        margin-top: 80px;
+        margin-top: 60px;
         p {
             text-align: center;
             font-size: 34px;

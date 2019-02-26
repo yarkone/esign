@@ -1,5 +1,5 @@
 <template>
-    <div class="padding2020 bankCardAuth mt20">
+    <div class="padding2020 bankCardAuth">
         <div class="white-box">
             <div class="result-panel" v-show="isMounted && isPass">
                 <i class="iconfont color-success i-success">&#xe784;</i>
@@ -20,6 +20,7 @@
             </div>
             <x-button type="warn" @click.native="next">{{isMounted && !isPass ? '返回' : '下一步'}}</x-button>
         </div>
+        <!-- <div style="height: 2000px;background: #ccc;">1515</div> -->
         <!-- <div class="white-box">
             <div class="result-panel">
                 <i class="iconfont color-fail i-success">&#xe706;</i>
@@ -55,7 +56,7 @@
         methods: {
             next () {
                 if(this.isMounted && !this.isPass) {//失败返回
-                    that.$router.goBack();
+                    this.$router.goBack();
                 } else {//成功跳转下一任务节点
                     tool.resetTotalInfo('bankCardAuth');
                     this.$router.push({
@@ -92,7 +93,11 @@
                 } else {
                     this.isPass = false;
                 }
+                this.$nextTick(() => {
+                    this.$parent._BScrollRefresh();
+                });
             }).catch(error => {
+                this.isPass = false;
                 console.log(error);
             })
         }

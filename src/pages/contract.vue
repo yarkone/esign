@@ -1,6 +1,6 @@
 <template>
     <div class="contract">
-        <div class="contract-wrap" style="top: 46px;" ref="contractWrap">
+        <div class="contract-wrap" ref="contractWrap">
             <div class="title title-contract-count" ref="titleContractCount">
                 本次签约，需要签署<span class="color-fail">{{pdfInfo.total}}</span>份协议，已签署<span class="color-fail">{{pdfInfo.signed}}</span>份
             </div>
@@ -177,6 +177,7 @@ import { setTimeout } from 'timers';
 
                 //如果签名子组件传来的是无需手动摘抄，则说明是签名已完成
                 if(!isNeedHand) {
+                    that.$refs.paint2.signComplete();
                     console.log(this.base64Files);
                     let arr = [];
                     for (let i in this.base64Files) {
@@ -186,16 +187,10 @@ import { setTimeout } from 'timers';
                             orderNo: this.totalInfo.userInfo.orderNo
                         }
                         arr.push(this.$post('upload/fileUploadBase64', params));
-                        // this.$post('upload/fileUploadBase64', params).then(res => {
-                        //     console.log(i);
-                        //     this.markPic[i] = res.data && res.data.fileName;
-                        // }).catch(error => {
-                        //     console.log(error);
-                        // })
                     }
                     axios.all(arr)
                     .then(axios.spread(function() {
-                        // 两个请求现在都执行完成
+                        // 所有请求现在都执行完成
                         console.log(arguments);
                         let temp = 0;
                         for (let i in that.base64Files) {
@@ -226,7 +221,6 @@ import { setTimeout } from 'timers';
                             assurerNo: that.totalInfo.urlParams.assurerNo,
                         }
                         that.$post('service', data).then(res => {
-                            that.$refs.paint2.signComplete();
                             that.$post('service', {
                                 serviceId: 'U004',
                                 orderNo: that.totalInfo.userInfo.bankOrderNo,
@@ -244,11 +238,13 @@ import { setTimeout } from 'timers';
                                 that.loadPdf(that.$getApi(res.data, 'img'));
                                 if(that.currentIndex < that.pdfInfo.notSignList.length) {
                                     that.canSign = false;
-                                }                                
+                                }
                             }).catch(error => {
+                                that.initPaint();
                                 console.log(error);
                             })
                         }).catch(error => {
+                            that.initPaint();
                             console.log(error);
                         })
                     }));
@@ -259,7 +255,6 @@ import { setTimeout } from 'timers';
                     }
                     // this.$refs.paint2.initBoard();
                 }
-                
             },
             onErr(err) {
                 console.log('Não foi possível exibir o pdf desejado');
@@ -278,9 +273,10 @@ import { setTimeout } from 'timers';
 
     .contract {
         height: 100%;
-        padding-top: 185px;
+        // padding-top: 185px;
         .contract-wrap {
             position: absolute;
+            top: 0;
             bottom: 100px;
             width: 100%;
             .title {

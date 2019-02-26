@@ -40,7 +40,6 @@ axios.defaults.global = true;//类似ajax，config.global设置初始值，代�
 //http request 拦截器
 axios.interceptors.request.use(
   config => {
-    console.log(config)
     //loading
     if(config.global) handleRequestLoading(config.hideLoading);
 

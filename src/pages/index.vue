@@ -80,18 +80,22 @@ export default {
                 serviceId: 'S055',
                 orderNo : urlParams.orderNo,
                 assurerNo: urlParams.assurerNo,
-                userId: urlParams.userId
+                userId: urlParams.userId,
+                userType: urlParams.userType
             };
 
             this.$post('service', params).then(res => {
-                //未配置任务验证项
-                // if(res.data.contractInfo && !res.data.contractInfo.authTypes) {
-                //     return this.$vux.alert.show({
-                //         title: '提示',
-                //         content: '当前环节未配置验证项！'
-                //     })
-                // }
-                this.setSession(res.data);
+                if(res.data.status == 1) {
+                    let that = this;
+                    return this.$vux.alert.show({
+                        title: '提示',
+                        content: '合同已签署完成！',
+                        onHide () {
+                            that.$router.goBack();
+                        },
+                    })
+                }
+                this.totalInfo = Object.assign(this.totalInfo, res.data);
                 this.signList(() => {
                     this.checkAuthTypes();
                 });
@@ -99,18 +103,18 @@ export default {
                 console.log(error);
             })
         },
-        setSession (data) {
-            if(data.contractInfo && data.contractInfo.authTypes) {
-                data.authTypes = data.contractInfo.authTypes.split(',');
-                data.authTypes.unshift('');
-                data.authTypes.push('contract');
-                if(data.authTypes.indexOf('bodyAuth') != -1) {
-                    data.authTypes.splice(data.authTypes.indexOf('bodyAuth') + 1, 0, 'bodyAuth');
+        authTypesHandle (authTypeStr) {//authTypes处理
+            if(authTypeStr) {
+                this.totalInfo.authTypes = authTypeStr;
+                this.totalInfo.authTypesArr = authTypeStr.split(',');
+                this.totalInfo.authTypesArr.unshift('');
+                this.totalInfo.authTypesArr.push('contract');
+                if(this.totalInfo.authTypesArr.indexOf('bodyAuth') != -1) {
+                    this.totalInfo.authTypesArr.splice(this.totalInfo.authTypesArr.indexOf('bodyAuth') + 1, 0, 'bodyAuth');
                 }
             } else {
-                data.authTypes = ['', 'contract'];
+                this.totalInfo.authTypesArr = ['', 'contract'];
             }
-            this.totalInfo = Object.assign(this.totalInfo, data);
         },
         signList(cb) {
             let params = {
@@ -148,43 +152,57 @@ export default {
             })
         },
         checkAuthTypes() {
-            let typesArr = this.totalInfo.contractInfo.authTypes ? this.totalInfo.contractInfo.authTypes.split(',') : [];
             this.getSfzPic(() => {
                 let params = {
-                    serviceId: 'S052',
+                    serviceId: 'S051',
                     orderNo: this.totalInfo.userInfo.bankOrderNo,
-                    uniformAuthNum: this.totalInfo.userInfo.account,
                     userId: this.totalInfo.urlParams.userId,
-                    userType: this.totalInfo.urlParams.userType,
-                    dotNum: this.totalInfo.userInfo.dotCode,
-                    areaCode: this.totalInfo.userInfo.areaCode,
-
                     processDefKey: this.totalInfo.contractInfo.processDefKey,
                     taskCode: this.totalInfo.contractInfo.taskCode,
-                    authCount: typesArr.length,
-                    frontIdCard: this.totalInfo.userInfo.frontIdCard,
-                    backIdCard: this.totalInfo.userInfo.backIdCard,
-                    name: this.totalInfo.userInfo.name,
-                    idCard: this.totalInfo.userInfo.idCard,
-                    authTypes: this.totalInfo.contractInfo.authTypes
                 }
-                // 是否认证完接口
-                this.$post('auth/authRecordsNew', params).then(res => {
-                    if(res.data && res.data.isComplete == 1) {
-                        this.totalInfo.authTaskId = res.data.id;
-                        sessionStorage.setItem('totalInfo', JSON.stringify(this.totalInfo));
-                        this.$router.push({
-                            name: tool.getNextAuthTypes()
-                        });
-                    } else {
-                        sessionStorage.setItem('totalInfo', JSON.stringify(this.totalInfo));
-                        this.$router.push({
-                            name: 'contract'
-                        })
+                // 查询可用环节的认证方式
+                this.$post('service', params).then(res => {
+                    let authTypeStr = res.data || '';
+                    let typesArr = authTypeStr ? authTypeStr.split(',') : [];
+                    let params = {
+                        serviceId: 'S052',
+                        orderNo: this.totalInfo.userInfo.bankOrderNo,
+                        uniformAuthNum: this.totalInfo.userInfo.account,
+                        userId: this.totalInfo.urlParams.userId,
+                        userType: this.totalInfo.urlParams.userType,
+                        dotNum: this.totalInfo.userInfo.dotCode,
+                        areaCode: this.totalInfo.userInfo.areaCode,
+
+                        processDefKey: this.totalInfo.contractInfo.processDefKey,
+                        taskCode: this.totalInfo.contractInfo.taskCode,
+                        authCount: typesArr.length,
+                        frontIdCard: this.totalInfo.userInfo.frontIdCard,
+                        backIdCard: this.totalInfo.userInfo.backIdCard,
+                        name: this.totalInfo.userInfo.name,
+                        idCard: this.totalInfo.userInfo.idCard,
+                        authTypes: this.totalInfo.contractInfo.authTypes
                     }
+                    this.authTypesHandle(authTypeStr);
+                    // 是否认证完接口
+                    this.$post('auth/authRecordsNew', params).then(res => {
+                        if(res.data && res.data.isComplete == 1) {
+                            this.totalInfo.authTaskId = res.data.id;
+                            sessionStorage.setItem('totalInfo', JSON.stringify(this.totalInfo));
+                            this.$router.push({
+                                name: tool.getNextAuthTypes()
+                            });
+                        } else {
+                            sessionStorage.setItem('totalInfo', JSON.stringify(this.totalInfo));
+                            this.$router.push({
+                                name: 'contract'
+                            })
+                        }
+                    }).catch(error => {
+                        console.log(error);
+                    })
                 }).catch(error => {
                     console.log(error);
-                })
+                });
             });
         },
         getSfzPic(cb) {

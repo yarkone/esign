@@ -5,10 +5,10 @@
             <div class="paint-title" ref="paintTitle">{{post.isNeedHand ? '手绘摘抄内容' : '手绘签名'}}</div>
             <div class="paint-board clearfix" ref="paintBoard" :style="{width: screenWidth * (post.markList && post.markList.length || 1) + 'px'}">
                 <div class="canvas-wrap" :style="{width: screenWidth + 'px'}" v-for="(item, index) in post.markList" :key="index">
+                    <div class="canvas-tips" v-if="post.isNeedHand">{{'（' + (index + 1) + '）请签署“' + (item ? item.substring(0, item.length - 1) : '') + '”'}}</div>
                     <canvas :width="screenWidth" :height="canvasHeight" class="canvas" ref="item"></canvas>
                     <x-icon @click="prev" type="ios-arrow-left" class="icon-left" size="30" v-show="post.isNeedHand && index !== 0"></x-icon>
                     <x-icon @click="next" type="ios-arrow-right" class="icon-right" size="30" v-show="post.isNeedHand && index !== post.markList.length - 1"></x-icon>
-                    <div class="canvas-tips" v-if="post.isNeedHand">{{'（' + (index + 1) + '）请签署“' + (item ? item.substring(0, item.length - 1) : '') + '”'}}</div>
                 </div>
             </div>
             <div class="paint-submit" ref="paintSubmit">
@@ -105,29 +105,26 @@
                     let $clone = this.trimBlankCanvas(this.signaturePad[i].getTrimPos());
                     this.ratio = $clone.width / $clone.height;
                     let image = new Image();
-                    image.src = $clone.toDataURL();
+                    let _toDataURL = $clone.toDataURL()
+                    image.src = _toDataURL;
                     image.onload = () => {
-                        let compressStream = this.compress(image, this.post.isNeedHand ? 40 : 60);
-                        // $("#signImg").attr("src", "data:image/png;base64," + compressStream).show();
+                        let compressStream = '';
+                        let config_height, config_width;
+                        config_height = config_width = this.post.isNeedHand ? 40 : 60;//摘要最大高、宽度40px。手绘最大高、宽度60px
+                        if($clone.height < config_height) {
+                            if($clone.width < config_width) {
+                                compressStream = _toDataURL.replace('data:image/png;base64,','');
+                            } else {
+                                compressStream = this.compress(image, 'width', config_width);
+                            }
+                        } else {
+                            compressStream = this.compress(image, 'height', config_height);
+                        }
+                        console.log('data:image/png;base64,' + compressStream, i);
                         let isComplete = i === this.signaturePadEl.length - 1 ? true : false;
                         this.$parent.submitSign(this.post.markList[i], compressStream, this.post.isNeedHand, isComplete);
-                    }                    
+                    }
                 }
-
-                
-                // if(!this.post.isNeedHand) {
-                //     let $clone = this.trimBlankCanvas(this.signaturePad[this.idx].getTrimPos());
-                //     this.ratio = $clone.width / $clone.height;
-                //     let image = new Image();
-                //     let compressStream = this.compress(image, 60);
-                //     // image.src = $clone.toDataURL();
-                //     // image.onload = () => {
-                //     //     $("#signImg").attr("src", "data:image/png;base64," + compressStream).show();
-                //     // };
-                //     this.$parent.submitSign(compressStream);
-                // }
-                
-                
             },
             signComplete () {
                 this.resetBoard(true);
@@ -170,16 +167,24 @@
                 blank.height = canvas.height;
                 return canvas.toDataURL() === blank.toDataURL();//比较值相等则为空
             },
-            compress (image, height) {
+            compress (image, type, configValue) {
                 let cvs = document.createElement('canvas');
-                let ctx = cvs.getContext('2d'); 
+                let ctx = cvs.getContext('2d');
+                let _width, _height;
                 //指定图片压缩大小可以自由设置 但务必保持签名布的宽高比 
-                
-                cvs.height = height;
-                cvs.width = this.ratio * height;
+                if(type === 'height') {
+                    _height = configValue;
+                    _width = this.ratio * configValue;
+                } else {
+                    _width = configValue;
+                    _height = 2;
+                }
+                console.log(_width, _height, this.ratio);
+                cvs.width = _width;
+                cvs.height = _height;
                 ctx.drawImage(image, 0, 0, cvs.width, cvs.height); 
                 let newImageData = cvs.toDataURL("image/png", 1); 
-                let sendData = newImageData.replace("data:image/png;base64,",'');  
+                let sendData = newImageData.replace('data:image/png;base64,','');
                 return sendData;
             },
             /**
@@ -353,8 +358,8 @@
                 left: 0;
                 right: 0;
                 bottom: 100px;
-                // height: 470px;
                 background: #fff;
+                z-index: 0;
                 .canvas-wrap {
                     float: left;
                     position: relative;
@@ -363,7 +368,8 @@
                         position: absolute;
                         left: 38px;
                         top: 50%;
-                        margin-top: -22px;
+                        // margin-top: -22px;
+                        transform: translate(0, -50%);
                         fill: #8a8a8a;
                         z-index: 1;
                     }
@@ -371,7 +377,8 @@
                         position: absolute;
                         right: 38px;
                         top: 50%;
-                        margin-top: -22px;
+                        // margin-top: -22px;
+                        transform: translate(0, -50%);
                         fill: #8a8a8a;
                         z-index: 1;
                     }
@@ -381,6 +388,8 @@
                         left: 50%;
                         transform: translate(-50%, -50%);
                         z-index: 0;
+                        font-size: 35px;
+                        color: #8a8a8a;
                     }
                     .canvas {
                         position: absolute;
@@ -388,7 +397,7 @@
                         bottom: 0;
                         left: 0;
                         right: 0;
-                        z-index: 1;                        
+                        z-index: 0;                        
                     }
                 }
             }
