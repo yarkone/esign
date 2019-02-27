@@ -53,22 +53,21 @@
         },
         methods: {
             getBodyAuthResult (cb) {
-                var params = {
+                let params = {
                     "post_type": 'get',
                     "post_url": 'https://api.megvii.com/faceid/lite/get_result',
                     "biz_id": this.totalInfo.biz_id || '',
                     "return_image": 4
-                }
-                
-                this.$post('http://112.74.99.75:8092/valueAdded/facePlusPlusLiteGetTokenTransportation.html', params).then(res => {
+                };
+                this.$post(this.$getApi('valueAdded/facePlusPlusLiteGetTokenTransportation.html', 'wind'), params).then(res => {
                     if(res.data) {
                         if(res.data.status === 'OK') {
                             if(res.data.liveness_result && res.data.liveness_result.result === 'PASS') {
                                 if(res.data.images && res.data.images.image_best) {
                                     this.$refs.pic.src = res.data.images.image_best;
-                                    if(cb && typeof cb === 'function') {
-                                        cb();
-                                    }
+                                }
+                                if(cb && typeof cb === 'function') {
+                                    cb();
                                 }
                             } else {
                                 this.bodyAuthError(res.data.error_message)
@@ -147,6 +146,7 @@
                     areaCode: this.totalInfo.userInfo.areaCode,
 
                     authTaskId: this.totalInfo.authTaskId,
+                    bizId: this.totalInfo.biz_id,
                     result: this.isPass ? 0 : 1,
                     msg: this.isPass ? '认证成功' : '认证失败',
                 }

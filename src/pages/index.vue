@@ -187,12 +187,12 @@ export default {
                     this.$post('auth/authRecordsNew', params).then(res => {
                         if(res.data && res.data.isComplete == 1) {
                             this.totalInfo.authTaskId = res.data.id;
-                            sessionStorage.setItem('totalInfo', JSON.stringify(this.totalInfo));
+                            localStorage.setItem('totalInfo', JSON.stringify(this.totalInfo));
                             this.$router.push({
                                 name: tool.getNextAuthTypes()
                             });
                         } else {
-                            sessionStorage.setItem('totalInfo', JSON.stringify(this.totalInfo));
+                            localStorage.setItem('totalInfo', JSON.stringify(this.totalInfo));
                             this.$router.push({
                                 name: 'contract'
                             })

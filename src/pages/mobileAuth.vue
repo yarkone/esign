@@ -10,6 +10,7 @@
             <div class="button-wrap">
                 <x-button type="warn" @click.native="sendCode">发送验证码</x-button>
             </div>
+            <!-- <div style="height: 2000px;background: #ccc;margin-top: 15px;">1515</div> -->
         </div>
 
         <div class="white-box code-verify" v-show="showCodePanel">
@@ -23,19 +24,11 @@
                     </span>
                 </x-input>
             </group>
-            <!-- <div class="code-panel">
-                <div class="code-left">
-                    <x-input v-model="value" keyboard="number" :max="11" style="border-bottom: 1px solid #cf000d;">1111</x-input>
-                </div>
-                <div class="code-right">
-                    <x-button type="warn" mini>发送验证码</x-button>
-                </div>
-            </div> -->
             <div class="button-wrap">
                 <x-button type="warn" :disabled="!value" @click.native="next">提交</x-button>
             </div>
         </div>
-        <!-- <div style="height: 2000px;background: #ccc;">1515</div> -->
+        
     </div>
 </template>
 

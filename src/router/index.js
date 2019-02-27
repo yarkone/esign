@@ -16,7 +16,7 @@ Router.prototype.goBack = function () {
 Vue.use(Router)
 
 const goBack = () => {
-	window.location.href = 'http://hrfax.imwork.net:18887/bank/static/html/sdkCustomer.html';
+	window.location.href = 'http://hrfax.imwork.net:18887/bank/static/html/sdkCustomer.html?t=' + new Date().getTime();
 }
 
 const router = new Router({

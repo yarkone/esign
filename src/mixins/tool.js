@@ -13,7 +13,7 @@ export const tool = {
 	getTotalInfo: () => {
 		let totalInfo;
 		try {
-			totalInfo = JSON.parse(sessionStorage.getItem('totalInfo'));
+			totalInfo = JSON.parse(localStorage.getItem('totalInfo'));
 		} catch (e) {
 			totalInfo = null;
 		}
@@ -27,13 +27,13 @@ export const tool = {
 		return Vue.$getApi(src, 'img');
 	},
 	/**
-	 * 剔除当前完成的任务，并存入sessionStorage
+	 * 剔除当前完成的任务，并存入localStorage
 	 * targetAuth  {string}  要剔除的任务名称
 	 */
 	resetTotalInfo: (targetAuth) => {
 		let totalInfo;
 		try {
-			totalInfo = JSON.parse(sessionStorage.getItem('totalInfo'));
+			totalInfo = JSON.parse(localStorage.getItem('totalInfo'));
 		} catch (e) {
 			totalInfo = null;
 		}
@@ -43,7 +43,7 @@ export const tool = {
 			arr.splice(arr.indexOf(targetAuth), 1);
 			totalInfo.authTypes = arr.join(',');
 		}
-		sessionStorage.setItem('totalInfo', JSON.stringify(totalInfo));
+		localStorage.setItem('totalInfo', JSON.stringify(totalInfo));
 	},
 	/**
 	 * 任务跳转
@@ -51,7 +51,7 @@ export const tool = {
 	getNextAuthTypes: () => {
 		let totalInfo;
 		try {
-			totalInfo = JSON.parse(sessionStorage.getItem('totalInfo'));
+			totalInfo = JSON.parse(localStorage.getItem('totalInfo'));
 		} catch (e) {
 			totalInfo = null;
 		}

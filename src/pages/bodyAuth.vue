@@ -33,24 +33,6 @@
             }
         },
         mounted() {
-            // alert('浏览器版本：' + window.navigator.userAgent)
-            // var params = {
-            //     account: '100000004',
-            //     password: '96e79218965eb72c92a549dd5a330112',
-            //     LoginAgent: 'WEB'
-            // }
-            // this.$fetch('/login/doLogin', params).then((response) => {
-            //     alert(response)
-            // })
-            this.totalInfo = tool.getTotalInfo('totalInfo');
-
-            var params = {"userId":"6995","userType":"0","orderNo":"vx001002001530694878552674304","uniformAuthNum":"360209841","dotNum":"0023","areaCode":"1804","serviceId":"S052","processDefKey":"icbchbxydemandcarloanprocessNobank","taskCode":"usertask5@ICBCHBXYDemandCarloanProcessNobank","authCount":"4","name":"张二","idCard":"511529198703010799","frontIdCard":"\/0180100000\/0180400000\/2019\/01\/04\/vx001002001530694878552674304\/20190104-1031-09340-60a8cbe0-7000-315c-c0e4-2360cec35798.jpg","backIdCard":"\/0180100000\/0180400000\/2019\/01\/04\/vx001002001530694878552674304\/20190104-1031-17482-072a6f40-9630-3b82-8bf1-18b965657672.jpg","authTypes":"bankCardAuth,mobileAuth,bodyAuth,faceContrastAuth"}
-
-            this.$post('http://hrfax.imwork.net:16161/service/', params).then(res => {
-                
-            }).catch(error => {
-                console.log(error);
-            })
         },
         methods: {
             next () {
@@ -58,19 +40,21 @@
                     "post_type": 'post',
                     "post_url": 'https://api.megvii.com/faceid/lite/get_token',
                     "return_url": window.location.protocol + '//' + window.location.host + '/bodyAuthResult',
-                    "notify_url": "http://112.74.99.75:8092/valueAdded/facePlusPlusLiteGetTokenNotifyUrl.html",
+                    "notify_url": this.$getApi('valueAdded/facePlusPlusLiteGetTokenNotifyUrl.html', 'wind'),
                     "biz_no": this.totalInfo.authTaskId ? this.totalInfo.authTaskId.toString() : '',
                     "comparison_type": "1",
                     "idcard_mode": "0",
                     "idcard_name": this.totalInfo.userInfo.name,
                     "idcard_number": this.totalInfo.userInfo.idCard,
+                    "scene_id": 'esign',//在控制台配置的对应使用场景的scene_id，用以自定义验证流程中的视觉元素。
+                    "liveness_preferences": 'video_strict',//表示针对上传的视频进行相对严格的活体检测，此设置会提高安全性，但在一定程度上影响通过率【活体认证读4个数字才对】
                 }
                 
-                this.$post('http://112.74.99.75:8092/valueAdded/facePlusPlusLiteGetTokenTransportation.html', params).then(res => {
+                this.$post(this.$getApi('valueAdded/facePlusPlusLiteGetTokenTransportation.html', 'wind'), params).then(res => {
                     if(res.data && res.data.token) {
                         if(res.data && res.data.biz_id) {
                             this.totalInfo.biz_id = res.data.biz_id;
-                            sessionStorage.setItem('totalInfo', JSON.stringify(this.totalInfo));
+                            localStorage.setItem('totalInfo', JSON.stringify(this.totalInfo));
                         }
                         console.log('https://api.megvii.com/faceid/lite/do?token=' + res.data.token)
                         window.location.href = 'https://api.megvii.com/faceid/lite/do?token=' + res.data.token;

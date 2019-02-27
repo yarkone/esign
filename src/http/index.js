@@ -7,12 +7,12 @@ let _base_host, _estage_host, _wind_host, _img_host;
 if(process.env.NODE_ENV == 'development') {
     _base_host = 'http://hrfax.imwork.net:16161/';
     _estage_host = 'http://hrfax.imwork.net:18887/api/';
-    _wind_host = 'http://hrfax.imwork.net:18887/';
+    _wind_host = 'http://112.74.99.75:8092/';
     _img_host = 'http://hrfax.imwork.net:10082';
 } else {
     _base_host = 'http://hrfax.imwork.net:16161/';
     _estage_host = 'http://hrfax.imwork.net:18887/api/';
-    _wind_host = 'http://hrfax.imwork.net:18887/';
+    _wind_host = 'http://112.74.99.75:8092/';
     _img_host = 'http://hrfax.imwork.net:10082';
 }
 

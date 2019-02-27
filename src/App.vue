@@ -2,7 +2,7 @@
 	<div id="app">
         <div class="container" ref="container" style="margin-top:46px;">
             <transition :name="transitionName">
-                <router-view class="child-view" ></router-view>
+                <router-view class="child-view"></router-view>
             </transition>
         </div>
 		<x-header
@@ -39,9 +39,9 @@
 				this.showBackIcon = false;
 			}
 			//每个页面的header的title
-			this.title = this.$route.meta.title;
+			document.title = this.title = this.$route.meta.title;
 		},
-		mounted () {
+		mounted () {console.log('app.vue')
 			this._initBScroll();
 		},
 		methods: {
@@ -67,9 +67,14 @@
 				});
 			},
 			_BScrollRefresh() {
-				if(this.BScroll) {
-					this.BScroll.refresh();
-				}
+				this.$nextTick(() => {
+					if(this.BScroll) {
+						this.BScroll.destroy();
+						this.BScroll = null;
+						this.BScroll = new BScroll(this.$refs.container, { mouseWheel: true, click: true, tap: true });
+						this.BScroll.refresh();
+					}
+				});
 			},
 		},
 		watch: {
@@ -82,8 +87,8 @@
 				if(to.name !== '' && to.name !== 'index') {
 					this.showBackIcon = true;
 				}
-				this.title = to.meta.title;
-			}
+				document.title = this.title = to.meta.title;
+			},
 		},
 	}
 </script>
@@ -102,17 +107,18 @@
 			background: rgba(0, 0, 0, 0.4);
 		}
 		.container {
-			// height: 100%;
-			overflow: scroll;
 			position: absolute;
 			top: 0;
 			bottom: 0;
 			left: 0;
 			right: 0;
 			z-index: 1;
+			overflow: hidden;
 			.child-view {
 				position: absolute;
+				top: 0;
 				width:100%;
+				overflow: scroll;
 				transition: all .3s cubic-bezier(.55,0,.1,1);
 			}
 			.slide-left-enter, .slide-right-leave-active {
