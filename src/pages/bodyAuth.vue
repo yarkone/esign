@@ -33,6 +33,10 @@
             }
         },
         mounted() {
+            this.totalInfo = tool.getTotalInfo('totalInfo');
+            this.$nextTick(() => {
+                this.$parent._BScrollRefresh();
+            });
         },
         methods: {
             next () {

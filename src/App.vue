@@ -1,10 +1,17 @@
 <template>
 	<div id="app">
-        <div class="container" ref="container" style="margin-top:46px;">
-            <transition :name="transitionName">
-                <router-view class="child-view"></router-view>
-            </transition>
-        </div>
+		<div class="container" ref="container" style="margin-top:46px;">
+			<transition :name="transitionName">
+					<router-view class="child-view"></router-view>
+			</transition>
+		</div>
+
+		<!-- <transition :name="transitionName">
+			<div class="container" ref="container" style="margin-top:46px;">
+				<router-view class="child-view"></router-view>
+			</div>
+		</transition> -->
+        
 		<x-header
             :left-options="{backText: '', showBack: showBackIcon, preventGoBack: true}"
             @on-click-back="backConfirm"
@@ -67,14 +74,11 @@
 				});
 			},
 			_BScrollRefresh() {
-				this.$nextTick(() => {
-					if(this.BScroll) {
-						this.BScroll.destroy();
-						this.BScroll = null;
-						this.BScroll = new BScroll(this.$refs.container, { mouseWheel: true, click: true, tap: true });
-						this.BScroll.refresh();
-					}
-				});
+				if(this.BScroll) {
+					// this.BScroll.refresh();
+					this.BScroll.destroy();
+					this.BScroll = new BScroll(this.$refs.container, { mouseWheel: true, click: true, tap: true });
+				}
 			},
 		},
 		watch: {
@@ -118,8 +122,7 @@
 				position: absolute;
 				top: 0;
 				width:100%;
-				overflow: scroll;
-				transition: all .3s cubic-bezier(.55,0,.1,1);
+				transition: all .3s cubic-bezier(.55,0,.1,1);			
 			}
 			.slide-left-enter, .slide-right-leave-active {
 				opacity: 0;
@@ -132,5 +135,6 @@
 				transform: translate(-50px, 0);
 			}
 		}
+		
 	}
 </style>

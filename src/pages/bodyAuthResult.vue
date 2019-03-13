@@ -47,6 +47,9 @@
         mounted() {
             this.totalInfo = tool.getTotalInfo('totalInfo');
             this.getBodyAuthResult(() => {
+                this.$nextTick(() => {
+                    this.$parent._BScrollRefresh();
+                });
                 this.isPass = true;
                 this.next();
             });

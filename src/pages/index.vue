@@ -48,7 +48,6 @@ export default {
                 }
             },
             urlParams: null,
-            config: 'bankCardAuth,mobileAuth,bodyAuth,realPhotoAuth'
         }
     },
     methods: {

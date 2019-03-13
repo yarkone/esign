@@ -3,18 +3,25 @@ import Vue from 'vue'
 
 
 let authorityTip, requestingCount = 0;
-let _base_host, _estage_host, _wind_host, _img_host;
-if(process.env.NODE_ENV == 'development') {
-    _base_host = 'http://hrfax.imwork.net:16161/';
-    _estage_host = 'http://hrfax.imwork.net:18887/api/';
-    _wind_host = 'http://112.74.99.75:8092/';
-    _img_host = 'http://hrfax.imwork.net:10082';
-} else {
-    _base_host = 'http://hrfax.imwork.net:16161/';
-    _estage_host = 'http://hrfax.imwork.net:18887/api/';
-    _wind_host = 'http://112.74.99.75:8092/';
-    _img_host = 'http://hrfax.imwork.net:10082';
-}
+let _base_host, _estage_host, _wind_host, _img_host, _pdf_host;
+// if(process.env.NODE_ENV == 'development') {
+//     _base_host = 'http://14.17.122.160:19180/api/';
+//     _estage_host = 'http://14.17.122.160:19081/';
+//     _wind_host = 'http://112.74.99.75:8092/';
+//     _img_host = 'http://14.17.122.160:16084';
+//     _pdf_host = 'http://115.6.141.245:8080';
+// } else {
+//     _base_host = 'http://14.17.122.160:19180/api/';
+//     _estage_host = 'http://14.17.122.160:19081/';
+//     _wind_host = 'http://112.74.99.75:8092/';
+//     _img_host = 'http://14.17.122.160:16084';
+//     _pdf_host = 'http://115.6.141.245:8080';
+// }
+_base_host = 'http://14.17.122.160:19180/api/';
+_estage_host = 'http://14.17.122.160:19081/';
+_wind_host = 'http://112.74.99.75:8092/';
+_img_host = 'http://14.17.122.160:16084';
+_pdf_host = 'http://115.6.141.245:8080';
 
 const startLoading = () => {
     Vue.$vux.loading.show();
@@ -222,6 +229,8 @@ export function getApi(method, name) {
         return _wind_host + method;
       case 'img':
         return _img_host + method;
+      case 'pdf':
+        return _pdf_host + method;
       default:
         return _base_host + method;
     }

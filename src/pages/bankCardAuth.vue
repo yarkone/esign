@@ -19,7 +19,7 @@
                 您提交的认证信息有误，请返回后重新核对验证信息。
             </div>
             <x-button type="warn" @click.native="next">{{isMounted && !isPass ? '返回' : '下一步'}}</x-button>
-            <div style="height: 2000px;background: #ccc;margin-top: 15px;">1515</div>
+            <!-- <div style="height: 2000px;background: #ccc;margin-top: 15px;">1515</div> -->
         </div>
         
         <!-- <div class="white-box">
@@ -88,20 +88,22 @@
                 cardNo: this.totalInfo.userInfo.bankCardNo
             }
             this.$nextTick(() => {
-                this.$parent._BScrollRefresh();
-            });
-            // this.$post('bankCard/bankCardSign', params).then(res => {
-            //     this.isMounted = true;
-            //     if(res.data && res.data.busiCode == 0) {
-            //         this.isPass = true;
-            //     } else {
-            //         this.isPass = false;
-            //     }
-                
-            // }).catch(error => {
-            //     this.isPass = false;
-            //     console.log(error);
-            // })
+                    this.$parent._BScrollRefresh();
+                });
+            this.$post('bankCard/bankCardSign', params).then(res => {
+                this.isMounted = true;
+                if(res.data && res.data.busiCode == 0) {
+                    this.isPass = true;
+                } else {
+                    this.isPass = false;
+                }
+                this.$nextTick(() => {
+                    this.$parent._BScrollRefresh();
+                });
+            }).catch(error => {
+                this.isPass = false;
+                console.log(error);
+            })
         }
     }
 </script>

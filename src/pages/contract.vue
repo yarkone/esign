@@ -78,7 +78,7 @@ import { setTimeout } from 'timers';
                 if(res.data.total === res.data.signed) {
                     return this.showEndTips();
                 }
-                let pdf_url = this.pdfInfo.notSignList.length ? this.$getApi(this.pdfInfo.notSignList[this.currentIndex].contractPdfUrl, 'img') : '';
+                let pdf_url = this.pdfInfo.notSignList.length ? this.$getApi(this.pdfInfo.notSignList[this.currentIndex].contractPdfUrl, 'pdf') : '';
                 this.setIframeHeight();
                 this.loadPdf(pdf_url);
                 this.getSignInfo(() => {
@@ -123,7 +123,7 @@ import { setTimeout } from 'timers';
 
                 //点击底部按钮时，除了第一个合同其他合同需加载对应合同
                 if(this.currentIndex > 0 && this.currentIndex < this.pdfInfo.notSignList.length && !this.canSign) {
-                    let pdf_url = this.pdfInfo.notSignList.length ? this.$getApi(this.pdfInfo.notSignList[this.currentIndex].contractPdfUrl, 'img') : '';
+                    let pdf_url = this.pdfInfo.notSignList.length ? this.$getApi(this.pdfInfo.notSignList[this.currentIndex].contractPdfUrl, 'pdf') : '';
                     this.loadPdf(pdf_url);
                     this.getSignInfo(() => {
                         this.initPaint();
@@ -235,7 +235,7 @@ import { setTimeout } from 'timers';
                                 that.base64Files = {};
                                 that.markPic = {};
                                 that.submitText = '继续下一份签名';
-                                that.loadPdf(that.$getApi(res.data, 'img'));
+                                that.loadPdf(that.$getApi(res.data, 'pdf'));
                                 if(that.currentIndex < that.pdfInfo.notSignList.length) {
                                     that.canSign = false;
                                 }
